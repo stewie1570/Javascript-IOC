@@ -1,6 +1,13 @@
 ioc =
     {
         registeredDependencies: [],
+        bind: function(argName, obj)
+        {
+            if (typeof (obj) == "function")
+                this.bindToConstructor(argName, obj);
+            else
+                this.bindToConstant(argName, obj);
+        },
         bindToConstructor: function (argName, construct)
         {
             var registration = {

@@ -32,6 +32,21 @@ describe("Dependency Injector", function ()
         ioc.bindToConstant("constTest", "constant success");
     });
 
+    it("bind should automatically call bindToConstructor or bindToConstant", function ()
+    {
+        ioc.registeredDependencies = [];
+        ioc.bind("testConst", { prop: "constant worked" });
+        ioc.bind("testConstruct", function () { this.prop = "constructor works"; });
+        var impl = function (testConst, testConstruct)
+        {
+            this.testConst = testConst;
+            this.testConstruct = testConstruct
+        }
+        var inst = ioc.get(impl);
+        expect(inst.testConst.prop).toBe("constant worked");
+        expect(inst.testConstruct.prop).toBe("constructor works");
+    });
+
     it("should support nested dependencies", function()
     {
         expect(ioc.get(Implementation2).success).toBe("success1");
