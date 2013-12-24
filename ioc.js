@@ -10,19 +10,11 @@ ioc =
         },
         bindToConstructor: function (argName, construct)
         {
-            var registration = {
-                argName: argName,
-                construct: construct
-            };
-            this.registeredDependencies.push(registration);
+            this.registeredDependencies.push({ argName: argName, construct: construct });
         },
         bindToConstant: function(argName, constant)
         {
-            var registration = {
-                argName: argName,
-                constant: constant
-            };
-            this.registeredDependencies.push(registration);
+            this.registeredDependencies.push({ argName: argName, constant: constant });
         },
         get: function (construct)
         {
@@ -57,19 +49,12 @@ ioc =
         arraySelect: function (arr, del)
         {
             var ret = [];
-            for (var i = 0; i < arr.length; i++)
-            {
-                ret.push(del(arr[i]));
-            }
+            for (var i = 0; i < arr.length; i++) ret.push(del(arr[i]));
             return ret;
         },
         arrayFirst: function (arr, del)
         {
-            for (var i = 0; i < arr.length; i++)
-            {
-                if (del(arr[i]))
-                    return arr[i];
-            }
+            for (var i = 0; i < arr.length; i++) if (del(arr[i])) return arr[i];
             return null;
         },
         getArgNames: function (construct)
