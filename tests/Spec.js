@@ -62,14 +62,14 @@ describe("Dependency Injector", function ()
     it("should be able to get constructor argument names", function ()
     {
         Constructor = function (arg1, arg2) { };
-        var argNames = ioc.getArgNames(Constructor);
+        var argNames = ioc.helpers.getArgNames(Constructor);
         expect(argNames).toEqual(["arg1", "arg2"]);
     });
 
     it("should know when constructors dont have dependencies", function ()
     {
         Constructor = function () { };
-        var argNames = ioc.getArgNames(Constructor);
+        var argNames = ioc.helpers.getArgNames(Constructor);
         expect(argNames).toEqual([]);
     });
 
