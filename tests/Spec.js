@@ -85,7 +85,7 @@ describe("Dependency Injector", function ()
         {
             exception = ex;
         }
-        expect(exception).not.toBe("");
+        expect(exception).toContain("'unknownDep'");
     });
 
     it("should support binding to constants, not just constructors", function ()
