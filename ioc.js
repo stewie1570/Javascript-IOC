@@ -21,7 +21,7 @@ ioc = {
 
     get: function (construct)
     {
-        var args = this.helpers.getArgNames(construct);
+        var args = this.helpers.getDependenciesOf(construct);
         var self = this;
         var depConstructsOrConsts = this.helpers.arraySelect(args, function (arg)
         {
@@ -35,7 +35,7 @@ ioc = {
         });
         var constructedDependencies = this.helpers.arraySelect(depConstructsOrConsts, function (depConstructOrConst)
         {
-            if (self.helpers.getArgNames(depConstructOrConst).length > 0)
+            if (self.helpers.getDependenciesOf(depConstructOrConst).length > 0)
                 return self.get(depConstructOrConst);
             else
                 return typeof (depConstructOrConst) == "function"
@@ -64,6 +64,15 @@ ioc = {
         {
             for (var i = 0; i < arr.length; i++) if (del(arr[i])) return arr[i];
             return null;
+        },
+
+        getDependenciesOf: function (construct)
+        {
+            var args = this.getArgNames(construct);
+            return typeof (construct.prototype) === "undefined"
+                || typeof (construct.prototype.dependencies) === "undefined"
+                    ? args
+                    : construct.prototype.dependencies;
         },
 
         getArgNames: function (construct)
