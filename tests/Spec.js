@@ -51,7 +51,6 @@ describe("Dependency Injector", function ()
     it("bind should automatically call bindToConstructor or bindToConstant", function ()
     {
         //Arrange
-        ioc.registeredDependencies = [];
         ioc.bind("testConst", { prop: "constant worked" });
         ioc.bind("testConstruct", function () { this.prop = "constructor works"; });
         var impl = function (testConst, testConstruct)
