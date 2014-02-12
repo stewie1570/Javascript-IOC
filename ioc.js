@@ -19,50 +19,60 @@ ioc = {
         this.registeredDependencies.push({ argName: argName, constant: constant });
     },
 
-    get: function (construct)
+    get: function (constructor)
     {
-        var args = this.helpers.getDependenciesOf(construct);
-        var self = this;
-        var depConstructsOrConsts = this.helpers.arraySelect(args, function (arg)
+        var dependencies = this
+            .helpers
+            .arraySelect
+            .call(this, this.helpers.getDependenciesOf(constructor), this.helpers.toDependencyObjects);
+
+        var constructedDependencies = this
+            .helpers
+            .arraySelect
+            .call(this, dependencies, this.helpers.toConstructedDependencies);
+
+        return this
+            .helpers
+            .createInjectedInstance(constructor, constructedDependencies);
+    },
+        
+    helpers: {
+        createInjectedInstance: function (construct, argArray)
         {
-            var dependency = self.helpers.arrayFirst(self.registeredDependencies, function (regDep)
+            var args = [null].concat(argArray);
+            var factoryFunction = construct.bind.apply(construct, args);
+            return new factoryFunction();
+        },
+
+        toConstructedDependencies: function (dependency)
+        {
+            if (this.helpers.getDependenciesOf(dependency).length > 0)
+                return this.get(dependency);
+            else
+                return typeof (dependency) == "function" ? new dependency() : dependency;
+        },
+
+        toDependencyObjects: function (arg)
+        {
+            var dependency = this.helpers.arrayFirst.call(this, this.registeredDependencies, function (regDep)
             {
                 return regDep.argName == arg;
             });
             if (dependency == null)
                 throw "Un-registered dependency '" + arg + "'.";
             return dependency.construct || dependency.constant;
-        });
-        var constructedDependencies = this.helpers.arraySelect(depConstructsOrConsts, function (depConstructOrConst)
-        {
-            if (self.helpers.getDependenciesOf(depConstructOrConst).length > 0)
-                return self.get(depConstructOrConst);
-            else
-                return typeof (depConstructOrConst) == "function"
-                    ? new depConstructOrConst()
-                    : depConstructOrConst;
-        });
-        return this.applyToConstructor(construct, constructedDependencies);
-    },
+        },
 
-    applyToConstructor: function (construct, argArray)
-    {
-        var args = [null].concat(argArray);
-        var factoryFunction = construct.bind.apply(construct, args);
-        return new factoryFunction();
-    },
-        
-    helpers: {
         arraySelect: function (arr, del)
         {
             var ret = [];
-            for (var i = 0; i < arr.length; i++) ret.push(del(arr[i]));
+            for (var i = 0; i < arr.length; i++) ret.push(del.call(this, arr[i]));
             return ret;
         },
 
         arrayFirst: function (arr, del)
         {
-            for (var i = 0; i < arr.length; i++) if (del(arr[i])) return arr[i];
+            for (var i = 0; i < arr.length; i++) if (del.call(this, arr[i])) return arr[i];
             return null;
         },
 
