@@ -24,12 +24,12 @@ ioc = {
         var dependencies = this
             .helpers
             .arraySelect
-            .call(this, this.helpers.getDependenciesOf(constructor), this.helpers.toDependencyObjects);
+            .call(this, this.helpers.getDependenciesOf(constructor), this.helpers.toDependencyObject);
 
         var constructedDependencies = this
             .helpers
             .arraySelect
-            .call(this, dependencies, this.helpers.toConstructedDependencies);
+            .call(this, dependencies, this.helpers.toConstructedDependency);
 
         return this
             .helpers
@@ -44,7 +44,7 @@ ioc = {
             return new factoryFunction();
         },
 
-        toConstructedDependencies: function (dependency)
+        toConstructedDependency: function (dependency)
         {
             if (this.helpers.getDependenciesOf(dependency).length > 0)
                 return this.get(dependency);
@@ -52,7 +52,7 @@ ioc = {
                 return typeof (dependency) == "function" ? new dependency() : dependency;
         },
 
-        toDependencyObjects: function (arg)
+        toDependencyObject: function (arg)
         {
             var dependency = this.helpers.arrayFirst.call(this, this.registeredDependencies, function (regDep)
             {
