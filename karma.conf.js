@@ -9,7 +9,7 @@ module.exports = function(config) {
     ],
 	
     preprocessors: {
-		'!(node_modules)src/**/*.js': ['webpack', 'coverage'],
+		'src/**/*.js': ['webpack', 'coverage'],
 	  	'test/**/*.js': ['webpack'],
 	},
 
