@@ -1,9 +1,14 @@
-/// <reference path="jasmine.js" />
-/// <reference path="../ioc.js" />
-
+import { ioc } from  '../src/ioc';
+require('phantomjs-polyfill');
 
 describe("Dependency Injector", function ()
 {
+    var Dependency1,
+        Dependency2,
+        Implementation,
+        Implementation2,
+        ManualDepImpl;
+        
     beforeEach(function ()
     {
         Dependency1 = function ()
@@ -44,8 +49,8 @@ describe("Dependency Injector", function ()
         var result = ioc.get(ManualDepImpl);
 
         //Assert
-        expect(result.prop1).toBe("success1");
-        expect(result.prop2).toBe("success2");
+        expect(result.prop1).to.equal("success1");
+        expect(result.prop2).to.equal("success2");
     });
 
     describe("bind", function ()
@@ -65,8 +70,8 @@ describe("Dependency Injector", function ()
             var inst = ioc.get(impl);
 
             //Assert
-            expect(inst.testConst.prop).toBe("constant worked");
-            expect(inst.testConstruct.prop).toBe("constructor works");
+            expect(inst.testConst.prop).to.equal("constant worked");
+            expect(inst.testConstruct.prop).to.equal("constructor works");
         });
     });
 
@@ -75,7 +80,7 @@ describe("Dependency Injector", function ()
         //Arrange
         //Act
         //Assert
-        expect(ioc.get(Implementation2).success).toBe("success1");
+        expect(ioc.get(Implementation2).success).to.equal("success1");
     });
 
     it("should inject dependencies by contstructor argument names", function ()
@@ -85,38 +90,38 @@ describe("Dependency Injector", function ()
         var impl = ioc.get(Implementation);
 
         //Assert
-        expect(impl.prop1).toBe("success1");
-        expect(impl.prop2).toBe("success2");
+        expect(impl.prop1).to.equal("success1");
+        expect(impl.prop2).to.equal("success2");
     });
 
     it("should be able to get constructor argument names", function ()
     {
         //Arrange
-        Constructor = function (arg1, arg2) { };
+        var Constructor = function (arg1, arg2) { };
 
         //Act
         var argNames = ioc.helpers.getDependenciesOf(Constructor);
 
         //Assert
-        expect(argNames).toEqual(["arg1", "arg2"]);
+        expect(argNames).to.deep.equal(["arg1", "arg2"]);
     });
 
     it("should know when constructors dont have dependencies", function ()
     {
         //Arrange
-        Constructor = function () { };
+        var Constructor = function () { };
 
         //Act
         var argNames = ioc.helpers.getDependenciesOf(Constructor);
 
         //Assert
-        expect(argNames).toEqual([]);
+        expect(argNames).to.deep.equal([]);
     });
 
     it("should throw exception for requested/un-registered dependencies", function ()
     {
         //Arrange
-        Constructor = function (unknownDep) { };
+        var Constructor = function (unknownDep) { };
         var exception = "";
 
         //Act
@@ -130,7 +135,7 @@ describe("Dependency Injector", function ()
         }
 
         //Assert
-        expect(exception).toContain("'unknownDep'");
+        expect(exception).to.contain("'unknownDep'");
     });
 
     it("should support binding to constants, not just constructors", function ()
@@ -140,6 +145,6 @@ describe("Dependency Injector", function ()
 
         //Act
         //Assert
-        expect(ioc.get(Implementation).prop1).toBe("constant success");
+        expect(ioc.get(Implementation).prop1).to.equal("constant success");
     });
 });

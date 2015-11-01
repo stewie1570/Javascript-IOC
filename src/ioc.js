@@ -1,4 +1,4 @@
-ioc = {
+export var ioc = {
     registeredDependencies: [],
 
     bind: function(argName, obj)
