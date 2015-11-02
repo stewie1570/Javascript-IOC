@@ -102,6 +102,30 @@ describe("Dependency Injector", function ()
         expect(impl.prop1).to.equal("success1");
         expect(impl.prop2).to.equal("success2");
     });
+    
+    it("should inject class instance into class", function ()
+    {
+        //Arrange
+        class Dep{
+            constructor(dependency1){
+                this.prop1 = dependency1.prop1;
+            }
+        }
+        
+        class ClassImpl{
+            constructor(dep){
+                this.prop1 = dep.prop1;
+            }
+        }
+        
+        ioc.bind("dep", Dep);
+        
+        //Act
+        var impl = ioc.get(ClassImpl);
+
+        //Assert
+        expect(impl.prop1).to.equal("success1");
+    });
 
     it("should inject dependencies by contstructor argument names", function ()
     {
