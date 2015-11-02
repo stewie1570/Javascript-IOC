@@ -1,106 +1,104 @@
-export var ioc = {
-    registeredDependencies: [],
+export class Ioc {
+    
+    constructor(){
+        this.registeredDependencies = [];   
+    }
 
-    bind: function(argName, obj)
+    bind(argName, obj)
     {
         if (typeof (obj) == "function")
             this.bindToConstructor(argName, obj);
         else
             this.bindToConstant(argName, obj);
-    },
+    }
 
-    bindToConstructor: function (argName, construct)
+    bindToConstructor(argName, construct)
     {
         this.registeredDependencies.push({ argName: argName, construct: construct });
-    },
+    }
 
-    bindToConstant: function(argName, constant)
+    bindToConstant(argName, constant)
     {
         this.registeredDependencies.push({ argName: argName, constant: constant });
-    },
+    }
 
-    get: function (constructor)
+    get(constructor)
     {
         var dependencies = this
-            .helpers
             .arraySelect
-            .call(this, this.helpers.getDependenciesOf(constructor), this.helpers.toDependencyObject);
+            .call(this, this.getDependenciesOf(constructor), this.toDependencyObject);
 
         var constructedDependencies = this
-            .helpers
             .arraySelect
-            .call(this, dependencies, this.helpers.toConstructedDependency);
+            .call(this, dependencies, this.toConstructedDependency);
 
         return this
-            .helpers
             .createInjectedInstance(constructor, constructedDependencies);
-    },
+    }
         
-    helpers: {
-        createInjectedInstance: function (construct, argArray)
-        {
-            var args = [null].concat(argArray);
-            var factoryFunction = construct.bind.apply(construct, args);
-            return new factoryFunction();
-        },
+    createInjectedInstance(construct, argArray)
+    {
+        var args = [null].concat(argArray);
+        var FactoryFunction = construct.bind.apply(construct, args);
+        return new FactoryFunction();
+    }
 
-        toConstructedDependency: function (dependency)
-        {
-            if (this.helpers.getDependenciesOf(dependency).length > 0)
-                return this.get(dependency);
-            else
-                return typeof (dependency) == "function" ? new dependency() : dependency;
-        },
+    toConstructedDependency(dependency)
+    {
+        if (this.getDependenciesOf(dependency).length > 0)
+            return this.get(dependency);
+        else
+            return typeof (dependency) == "function" ? new dependency() : dependency;
+    }
 
-        toDependencyObject: function (arg)
+    toDependencyObject(arg)
+    {
+        var dependency = this.arrayFirst.call(this, this.registeredDependencies, function (regDep)
         {
-            var dependency = this.helpers.arrayFirst.call(this, this.registeredDependencies, function (regDep)
-            {
-                return regDep.argName == arg;
-            });
-            if (dependency == null)
-                throw "Un-registered dependency '" + arg + "'.";
-            return dependency.construct || dependency.constant;
-        },
+            return regDep.argName == arg;
+        });
+        if (dependency == null)
+            throw "Un-registered dependency '" + arg + "'.";
+        return dependency.construct || dependency.constant;
+    }
 
-        arraySelect: function (arr, del)
+    arraySelect(arr, del)
+    {
+        var ret = [];
+        for (var i = 0; i < arr.length; i++) ret.push(del.call(this, arr[i]));
+        return ret;
+    }
+
+    arrayFirst(arr, del)
+    {
+        for (var i = 0; i < arr.length; i++) if (del.call(this, arr[i])) return arr[i];
+        return null;
+    }
+
+    getDependenciesOf(construct)
+    {
+        var args = this.getArgNames(construct);
+        return typeof (construct.prototype) === "undefined"
+            || typeof (construct.prototype.dependencies) === "undefined"
+                ? args
+                : construct.prototype.dependencies;
+    }
+
+    getArgNames(construct)
+    {
+        var code = construct
+            .toString()
+            .replace(/\s/g, '');
+        var start = code.indexOf("(") + 1;
+        var end = code.indexOf(")");
+
+        if (start < 0 || end < 0 || end - start < 1)
+            return [];
+        else
         {
-            var ret = [];
-            for (var i = 0; i < arr.length; i++) ret.push(del.call(this, arr[i]));
-            return ret;
-        },
-
-        arrayFirst: function (arr, del)
-        {
-            for (var i = 0; i < arr.length; i++) if (del.call(this, arr[i])) return arr[i];
-            return null;
-        },
-
-        getDependenciesOf: function (construct)
-        {
-            var args = this.getArgNames(construct);
-            return typeof (construct.prototype) === "undefined"
-                || typeof (construct.prototype.dependencies) === "undefined"
-                    ? args
-                    : construct.prototype.dependencies;
-        },
-
-        getArgNames: function (construct)
-        {
-            var code = construct
-                .toString()
-                .replace(/\s/g, '');
-            var start = code.indexOf("(") + 1;
-            var end = code.indexOf(")");
-
-            if (start < 0 || end < 0 || end - start < 1)
-                return [];
-            else
-            {
-                return code
-                    .substring(start, end)
-                    .split(",");
-            }
+            return code
+                .substring(start, end)
+                .split(",");
         }
     }
 };

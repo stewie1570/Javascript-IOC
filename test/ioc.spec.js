@@ -1,4 +1,4 @@
-import { ioc } from  '../src/ioc';
+import { Ioc } from  '../src/ioc';
 import 'phantomjs-polyfill';
 
 describe("Dependency Injector", function ()
@@ -7,7 +7,8 @@ describe("Dependency Injector", function ()
         Dependency2,
         Implementation,
         Implementation2,
-        ManualDepImpl;
+        ManualDepImpl,
+        ioc;
         
     beforeEach(function ()
     {
@@ -36,6 +37,7 @@ describe("Dependency Injector", function ()
         };
         ManualDepImpl.prototype.dependencies = ["dependency1", "dependency2"];
 
+        ioc = new Ioc();
         ioc.bindToConstructor("impl", Implementation);
         ioc.bindToConstructor("dependency1", Dependency1);
         ioc.bindToConstructor("dependency2", Dependency2);
@@ -100,7 +102,7 @@ describe("Dependency Injector", function ()
         var Constructor = function (arg1, arg2) { };
 
         //Act
-        var argNames = ioc.helpers.getDependenciesOf(Constructor);
+        var argNames = ioc.getDependenciesOf(Constructor);
 
         //Assert
         expect(argNames).to.deep.equal(["arg1", "arg2"]);
@@ -112,7 +114,7 @@ describe("Dependency Injector", function ()
         var Constructor = function () { };
 
         //Act
-        var argNames = ioc.helpers.getDependenciesOf(Constructor);
+        var argNames = ioc.getDependenciesOf(Constructor);
 
         //Assert
         expect(argNames).to.deep.equal([]);
