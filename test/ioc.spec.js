@@ -1,7 +1,7 @@
 import { Ioc } from  '../src/ioc';
 import 'phantomjs-polyfill';
 
-describe("Dependency Injector", function ()
+describe("Dependency Injector", () =>
 {
     var Dependency1,
         Dependency2,
@@ -10,7 +10,7 @@ describe("Dependency Injector", function ()
         ManualDepImpl,
         ioc;
         
-    beforeEach(function ()
+    beforeEach(() =>
     {
         Dependency1 = function ()
         {
@@ -44,7 +44,7 @@ describe("Dependency Injector", function ()
         ioc.bindToConstant("constTest", "constant success");
     });
 
-    it("should support minification via declaring dependencies in prototype.dependencies property", function ()
+    it("should support minification via declaring dependencies in prototype.dependencies property", () =>
     {
         //Arrange
         //Act
@@ -55,9 +55,9 @@ describe("Dependency Injector", function ()
         expect(result.prop2).to.equal("success2");
     });
 
-    describe("bind", function ()
+    describe("bind", () =>
     {
-        it("should automatically call bindToConstructor or bindToConstant", function ()
+        it("should automatically call bindToConstructor or bindToConstant", () =>
         {
             //Arrange
             ioc.bind("testConst", { prop: "constant worked" });
@@ -77,7 +77,7 @@ describe("Dependency Injector", function ()
         });
     });
 
-    it("should support nested dependencies", function()
+    it("should support nested dependencies", () =>
     {
         //Arrange
         //Act
@@ -85,7 +85,7 @@ describe("Dependency Injector", function ()
         expect(ioc.get(Implementation2).success).to.equal("success1");
     });
     
-    it("should inject dependencies into classes", function ()
+    it("should inject dependencies into classes", () => 
     {
         //Arrange
         class ClassImpl{
@@ -103,7 +103,7 @@ describe("Dependency Injector", function ()
         expect(impl.prop2).to.equal("success2");
     });
     
-    it("should inject class instance into class", function ()
+    it("should inject class instance into class", () =>
     {
         //Arrange
         class Dep{
@@ -127,7 +127,7 @@ describe("Dependency Injector", function ()
         expect(impl.prop1).to.equal("success1");
     });
 
-    it("should inject dependencies by contstructor argument names", function ()
+    it("should inject dependencies by contstructor argument names", () =>
     {
         //Arrange
         //Act
@@ -138,7 +138,7 @@ describe("Dependency Injector", function ()
         expect(impl.prop2).to.equal("success2");
     });
 
-    it("should be able to get constructor argument names", function ()
+    it("should be able to get constructor argument names", () =>
     {
         //Arrange
         var Constructor = function (arg1, arg2) { };
@@ -150,7 +150,7 @@ describe("Dependency Injector", function ()
         expect(argNames).to.deep.equal(["arg1", "arg2"]);
     });
 
-    it("should know when constructors dont have dependencies", function ()
+    it("should know when constructors dont have dependencies", () =>
     {
         //Arrange
         var Constructor = function () { };
@@ -162,7 +162,7 @@ describe("Dependency Injector", function ()
         expect(argNames).to.deep.equal([]);
     });
 
-    it("should throw exception for requested/un-registered dependencies", function ()
+    it("should throw exception for requested/un-registered dependencies", () =>
     {
         //Arrange
         var Constructor = function (unknownDep) { };
@@ -182,7 +182,7 @@ describe("Dependency Injector", function ()
         expect(exception).to.contain("'unknownDep'");
     });
 
-    it("should support binding to constants, not just constructors", function ()
+    it("should support binding to constants, not just constructors", () =>
     {
         //Arrange
         Implementation = function (constTest) { this.prop1 = constTest; };

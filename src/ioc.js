@@ -24,19 +24,14 @@ export class Ioc {
 
     get(constructor)
     {
-        var dependencies = this
-            .arraySelect
-            .call(this, this.getDependenciesOf(constructor), this.toDependencyObject);
+        var dependencies = this.arraySelect(this.getDependenciesOf(constructor), this.toDependencyObject);
+            
+        var constructedDependencies = this.arraySelect(dependencies, this.toConstructedDependency);
 
-        var constructedDependencies = this
-            .arraySelect
-            .call(this, dependencies, this.toConstructedDependency);
-
-        return this
-            .createInjectedInstance(constructor, constructedDependencies);
+        return this.createInjectedInstanceOf(constructor, constructedDependencies);
     }
         
-    createInjectedInstance(construct, argArray)
+    createInjectedInstanceOf(construct, argArray)
     {
         var args = [null].concat(argArray);
         var FactoryFunction = construct.bind.apply(construct, args);
@@ -53,12 +48,9 @@ export class Ioc {
 
     toDependencyObject(arg)
     {
-        var dependency = this.arrayFirst.call(this, this.registeredDependencies, function (regDep)
-        {
-            return regDep.argName == arg;
-        });
+        var dependency = this.arrayFirst(this.registeredDependencies, regDep => regDep.argName == arg);
         if (dependency == null)
-            throw "Un-registered dependency '" + arg + "'.";
+            throw `Un-registered dependency '${arg}'.`;
         return dependency.construct || dependency.constant;
     }
 
