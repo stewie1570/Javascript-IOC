@@ -14,7 +14,7 @@ function build(ops) {
 	webpackConfig.devtool = ops.sourceMap ? 'source-map' : undefined;
 	webpackConfig.watch = ops.watch;
 
-	return gulp.src('src/main.js')
+	return gulp.src('src/ioc.js')
 		.pipe(gulpWebpack(webpackConfig))
 		.pipe(gulp.dest('./'));
 }

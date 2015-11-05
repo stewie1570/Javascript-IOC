@@ -2,7 +2,7 @@ var path = require('path');
 var webpack = require('webpack');
 
 module.exports = {
-    entry: "./src/main.js",
+    entry: "./src/ioc.js",
     output: {
         path: __dirname,
         filename: "public/app/bundle.js"
