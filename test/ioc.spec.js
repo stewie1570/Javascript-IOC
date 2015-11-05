@@ -32,7 +32,7 @@ describe("Dependency Injector", () => {
             var result = ioc.get(ManualDepImpl);
 
             //Assert
-            expect(result.prop1).to.equal("success1..");
+            expect(result.prop1).to.equal("success1");
             expect(result.prop2).to.equal("success2");
         });
 
