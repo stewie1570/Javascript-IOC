@@ -10,8 +10,11 @@ describe("Dependency Injector", () =>
         ManualDepImpl,
         ioc;
         
-    beforeEach(() =>
+    beforeEach(() => ioc = new Ioc());
+
+    it("should support minification via declaring dependencies in prototype.dependencies property", () =>
     {
+        //Arrange
         Dependency1 = function ()
         {
             this.prop1 = "success1";
@@ -20,33 +23,15 @@ describe("Dependency Injector", () =>
         {
             this.prop1 = "success2";
         };
-
-        Implementation = function (dependency1, dependency2)
-        {
-            this.prop1 = dependency1.prop1;
-            this.prop2 = dependency2.prop1;
-        };
-        Implementation2 = function(impl)
-        {
-            this.success = impl.prop1;
-        };
         ManualDepImpl = function (d1, d2)
         {
             this.prop1 = d1.prop1;
             this.prop2 = d2.prop1;
         };
         ManualDepImpl.prototype.dependencies = ["dependency1", "dependency2"];
-
-        ioc = new Ioc();
-        ioc.bindToConstructor("impl", Implementation);
         ioc.bindToConstructor("dependency1", Dependency1);
         ioc.bindToConstructor("dependency2", Dependency2);
-        ioc.bindToConstant("constTest", "constant success");
-    });
-
-    it("should support minification via declaring dependencies in prototype.dependencies property", () =>
-    {
-        //Arrange
+        
         //Act
         var result = ioc.get(ManualDepImpl);
 
@@ -77,9 +62,31 @@ describe("Dependency Injector", () =>
         });
     });
 
-    it("should support nested dependencies", () =>
+    it("should support nested dependencies recursively", () =>
     {
         //Arrange
+        Dependency1 = function ()
+        {
+            this.prop1 = "success1";
+        };
+        Dependency2 = function ()
+        {
+            this.prop1 = "success2";
+        };
+        Implementation = function (dependency1, dependency2)
+        {
+            this.prop1 = dependency1.prop1;
+            this.prop2 = dependency2.prop1;
+        };
+        Implementation2 = function(impl)
+        {
+            this.success = impl.prop1;
+        };
+        ioc.bindToConstructor("impl", Implementation);
+        ioc.bindToConstructor("dependency1", Dependency1);
+        ioc.bindToConstructor("dependency2", Dependency2);
+        ioc.bindToConstant("constTest", "constant success");
+        
         //Act
         //Assert
         expect(ioc.get(Implementation2).success).to.equal("success1");
@@ -88,6 +95,17 @@ describe("Dependency Injector", () =>
     it("should inject dependencies into classes", () => 
     {
         //Arrange
+        Dependency1 = function ()
+        {
+            this.prop1 = "success1";
+        };
+        Dependency2 = function ()
+        {
+            this.prop1 = "success2";
+        };
+        ioc.bindToConstructor("dependency1", Dependency1);
+        ioc.bindToConstructor("dependency2", Dependency2);
+        
         class ClassImpl{
             constructor(dependency1, dependency2){
                 this.prop1 = dependency1.prop1;
@@ -106,6 +124,11 @@ describe("Dependency Injector", () =>
     it("should inject class instance into class", () =>
     {
         //Arrange
+        Dependency1 = function ()
+        {
+            this.prop1 = "success1";
+        };
+        
         class Dep{
             constructor(dependency1){
                 this.prop1 = dependency1.prop1;
@@ -118,6 +141,7 @@ describe("Dependency Injector", () =>
             }
         }
         
+        ioc.bindToConstructor("dependency1", Dependency1);
         ioc.bind("dep", Dep);
         
         //Act
@@ -130,6 +154,22 @@ describe("Dependency Injector", () =>
     it("should inject dependencies by contstructor argument names", () =>
     {
         //Arrange
+        Dependency1 = function ()
+        {
+            this.prop1 = "success1";
+        };
+        Dependency2 = function ()
+        {
+            this.prop1 = "success2";
+        };
+        Implementation = function (dependency1, dependency2)
+        {
+            this.prop1 = dependency1.prop1;
+            this.prop2 = dependency2.prop1;
+        };
+        ioc.bindToConstructor("dependency1", Dependency1);
+        ioc.bindToConstructor("dependency2", Dependency2);
+        
         //Act
         var impl = ioc.get(Implementation);
 
@@ -185,6 +225,7 @@ describe("Dependency Injector", () =>
     it("should support binding to constants, not just constructors", () =>
     {
         //Arrange
+        ioc.bindToConstant("constTest", "constant success");
         Implementation = function (constTest) { this.prop1 = constTest; };
 
         //Act
