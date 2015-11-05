@@ -206,20 +206,20 @@ describe("Dependency Injector", () =>
     {
         //Arrange
         var Constructor = function (unknownDep) { };
-        var exception = "";
+        var exceptionMessage = "";
 
         //Act
         try
         {
             ioc.get(Constructor);
         }
-        catch (ex)
+        catch (error)
         {
-            exception = ex;
+            exceptionMessage = error.message;
         }
 
         //Assert
-        expect(exception).to.contain("'unknownDep'");
+        expect(exceptionMessage).to.contain("'unknownDep'");
     });
 
     it("should support binding to constants, not just constructors", () =>

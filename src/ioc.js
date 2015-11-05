@@ -50,7 +50,7 @@ export class Ioc {
     {
         var dependency = this.arrayFirst(this.registeredDependencies, regDep => regDep.argName == arg);
         if (dependency == null)
-            throw `Un-registered dependency '${arg}'.`;
+            throw new Error(`Un-registered dependency '${arg}'.`);
         return dependency.construct || dependency.constant;
     }
 
