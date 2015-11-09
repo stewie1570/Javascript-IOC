@@ -1,5 +1,4 @@
 import { Ioc } from  '../src/ioc';
-import 'phantomjs-polyfill';
 
 describe("Dependency Injector", () => {
     var Dependency1,
