@@ -13,25 +13,6 @@ gulp.task('tdd', function (done) {
 	}, done).start();
 });
 
-function runKarma(configFilePath, options, cb) {
-
-	configFilePath = path.resolve(configFilePath);
-
-	var server = karma.server;
-	var log=gutil.log, colors=gutil.colors;
-	var config = karmaParseConfig(configFilePath, {});
-
-    Object.keys(options).forEach(function(key) {
-      config[key] = options[key];
-    });
-
-	server.start(config, function(exitCode) {
-		log('Karma has exited with ' + colors.red(exitCode));
-		cb();
-		process.exit(exitCode);
-	});
-}
-
 function build(ops) {
 	var webpackConfig = require('./webpack.config.js');
 
