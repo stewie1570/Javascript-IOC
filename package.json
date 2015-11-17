@@ -4,7 +4,7 @@
   "directories": {
     "lib": "./lib"
   },
-  "main": "./lib/index",
+  "main": "lib/index.js",
   "description": "",
   "scripts": {
     "test": "gulp test",
