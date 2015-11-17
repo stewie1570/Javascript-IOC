@@ -13,6 +13,5 @@ module.exports = {
         ]
     },
     watch: true,
-    plugins: [new webpack.optimize.UglifyJsPlugin()],
     devtool: 'source-map'
 };
