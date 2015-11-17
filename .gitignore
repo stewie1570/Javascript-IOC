@@ -3,3 +3,4 @@ node_modules
 public/app
 public/css
 npm-debug.log
+lib

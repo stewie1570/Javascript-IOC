@@ -5,7 +5,7 @@ module.exports = {
     entry: "./src/ioc.js",
     output: {
         path: __dirname,
-        filename: "public/app/bundle.js"
+        filename: "index.js"
     },
     module: {
         loaders: [
