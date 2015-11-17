@@ -1,13 +1,16 @@
 {
   "name": "JavaScript-IOC",
   "version": "1.0.0",
+  "directories": {
+    "lib": "./lib"
+  },
+  "main": "./lib/index",
   "description": "",
-  "main": "index.js",
   "scripts": {
     "test": "gulp test",
     "prepublish": "gulp build-prod"
   },
-  "author": "",
+  "author": "Stewart Anderson",
   "license": "Ms-PL",
   "devDependencies": {
     "babel-core": "^5.8.25",
