@@ -4,7 +4,7 @@
   "directories": {
     "lib": "./lib"
   },
-  "main": "src/ioc.js",
+  "main": "lib/index.js",
   "description": "",
   "scripts": {
     "test": "gulp test",
