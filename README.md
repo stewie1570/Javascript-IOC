@@ -8,6 +8,10 @@ A simple JavaScript IOC that ties constructor arguments (dependencies) to variab
 
 Here is some example usage from the unit tests:
 
+    ...
+    beforeEach(() => ioc = new Ioc());
+    ...
+    
     it("should support nested dependencies recursively", () => {
         //Arrange
         Dependency1 = function () {
