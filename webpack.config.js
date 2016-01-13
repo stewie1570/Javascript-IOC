@@ -7,7 +7,7 @@ module.exports = {
         path: __dirname,
         filename: "index.js",
         library: 'Ioc',
-        libaryTarget: 'umd'
+        libraryTarget: 'commonjs2'
     },
     module: {
         loaders: [
