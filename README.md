@@ -1,5 +1,4 @@
-Javascript-IOC
-==============
+# javascript-ioc
 
 [![Build](https://api.travis-ci.org/stewie1570/Javascript-IOC.svg)]
 (https://travis-ci.org/stewie1570/Javascript-IOC)
