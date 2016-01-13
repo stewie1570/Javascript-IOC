@@ -1,6 +1,6 @@
 {
   "name": "javascript-ioc",
-  "version": "1.0.14",
+  "version": "1.0.15",
   "directories": {
     "lib": "./lib"
   },
