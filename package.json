@@ -5,7 +5,7 @@
     "lib": "./lib"
   },
   "main": "lib/index.js",
-  "description": "",
+  "description": "A simple JavaScript IOC that ties constructor arguments (dependencies) to variables or other constructors recursively.",
   "scripts": {
     "test": "gulp test",
     "prepublish": "gulp build-prod"
