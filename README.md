@@ -8,6 +8,8 @@ A simple JavaScript IOC that ties constructor arguments (dependencies) to variab
 
 Here is some example usage from the unit tests:
 
+    import { Ioc } from 'javascript-ioc';
+    
     ...
     beforeEach(() => ioc = new Ioc());
     ...
