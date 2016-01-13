@@ -5,7 +5,9 @@ module.exports = {
     entry: "./src/ioc.js",
     output: {
         path: __dirname,
-        filename: "index.js"
+        filename: "index.js",
+        library: 'Ioc',
+        libaryTarget: 'umd'
     },
     module: {
         loaders: [
