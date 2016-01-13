@@ -1,7 +1,6 @@
 #javascript-ioc
 
-[![Build](https://api.travis-ci.org/stewie1570/Javascript-IOC.svg)]
-(https://travis-ci.org/stewie1570/Javascript-IOC)
+[![Build](https://api.travis-ci.org/stewie1570/Javascript-IOC.svg)](https://travis-ci.org/stewie1570/Javascript-IOC)
 
 A simple JavaScript IOC that ties constructor arguments (dependencies) to variables or other constructors recursively.
 
