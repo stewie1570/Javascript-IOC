@@ -203,4 +203,27 @@ describe("Dependency Injector", () => {
         //Assert
         expect(exceptionMessage).to.contain("'unknownDep'");
     });
+
+    it("should throw when circular dependency is detected", () => {
+        //Arrange
+        Dependency1 = function (Implementation) {
+        };
+        Dependency2 = function (dependency1) {
+        };
+        Implementation = function (dependency2) {
+        };
+        ioc.bindToConstructor("Implementation", Implementation);
+        ioc.bindToConstructor("dependency1", Dependency1);
+        ioc.bindToConstructor("dependency2", Dependency2);
+        
+        //Act
+        var errorMessage = "";
+        try {
+            var impl = ioc.get(Implementation);
+        }
+        catch (error) { errorMessage = error.message; }
+
+        //Assert
+        expect(errorMessage).to.equal("Circular dependency detected: Implementation <- dependency2 <- dependency1 <- Implementation.")
+    });
 });
