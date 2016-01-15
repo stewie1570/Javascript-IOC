@@ -1,16 +1,18 @@
+import { select, any, first, count } from './array-helpers';
+
 export class Ioc {
 
     constructor() {
         this.registeredDependencies = [];
 
-        this.dependencyNameFrom = dependency => (this.first({
+        this.dependencyNameFrom = dependency => (first({
             from: this.registeredDependencies,
             matching: binding => binding.construct == dependency
         }) || { dependencyName: null }).dependencyName;
 
-        this.hasRepeatsIn = array => this.any({
+        this.hasRepeatsIn = array => any({
             from: array,
-            matching: outer => this.count({ from: array, matching: inner => inner === outer }) > 1
+            matching: outer => count({ from: array, matching: inner => inner === outer }) > 1
         });
 
         this.createInjectedInstanceOf = ({constructor, dependencies}) => {
@@ -27,35 +29,13 @@ export class Ioc {
         }
 
         this.toDependencyObject = (dependencyName) => {
-            var dependency = this.first({
+            var dependency = first({
                 from: this.registeredDependencies,
                 matching: regDep => regDep.dependencyName == dependencyName
             });
             if (dependency == null)
                 throw new Error(`Un-registered dependency '${dependencyName}'.`);
             return dependency.construct || dependency.constant;
-        }
-
-        this.select = ({from, to}) => {
-            var ret = [];
-            for (var i = 0; i < from.length; i++) ret.push(to.call(this, from[i]));
-            return ret;
-        }
-
-        this.any = ({from, matching}) => {
-            for (var i = 0; i < from.length; i++) if (matching.call(this, from[i])) return true;
-            return false;
-        }
-
-        this.first = ({from, matching}) => {
-            for (var i = 0; i < from.length; i++) if (matching.call(this, from[i])) return from[i];
-            return null;
-        }
-
-        this.count = ({from, matching}) => {
-            var count = 0;
-            for (var i = 0; i < from.length; i++) if (matching.call(this, from[i])) count++;
-            return count;
         }
 
         this.getDependenciesOf = construct => {
@@ -101,12 +81,12 @@ export class Ioc {
     get(constructor, dependencyChain) {
         dependencyChain = dependencyChain || [this.dependencyNameFrom(constructor)];
 
-        var dependencies = this.select({ from: this.getDependenciesOf(constructor), to: this.toDependencyObject });
+        var dependencies = select({ from: this.getDependenciesOf(constructor), to: this.toDependencyObject });
 
         if (this.hasRepeatsIn(dependencyChain))
             throw new Error(`Circular dependency detected: ${dependencyChain.join(' <- ') }.`);
 
-        var toConstructedDependencies = this.select({
+        var toConstructedDependencies = select({
             from: dependencies,
             to: dependency => this.toConstructedDependency({
                 dependency,
