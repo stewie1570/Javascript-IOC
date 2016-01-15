@@ -1,7 +1,6 @@
 #javascript-ioc
 
 [![Build](https://api.travis-ci.org/stewie1570/Javascript-IOC.svg)](https://travis-ci.org/stewie1570/Javascript-IOC)
-[![Coverage Status](https://coveralls.io/repos/stewie1570/Javascript-IOC/badge.svg?branch=master&service=github)](https://coveralls.io/github/stewie1570/Javascript-IOC?branch=master)
 
 A simple JavaScript IOC that ties constructor arguments (dependencies) to variables or other constructors recursively.
 
