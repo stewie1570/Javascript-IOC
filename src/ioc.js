@@ -27,29 +27,30 @@ export class Ioc {
             array,
             element => this.arrayCount(array, e => e === element) > 1);
         var dependencies = this.arraySelect(this.getDependenciesOf(constructor), this.toDependencyObject);
-        
+
         if (!dependencyChain)
             dependencyChain = [dependencyNameFrom(constructor)];
 
         if (hasRepeats(dependencyChain))
-            throw new Error(`Circular dependency detected: ${dependencyChain.join(' <- ')}.`);
+            throw new Error(`Circular dependency detected: ${dependencyChain.join(' <- ') }.`);
 
         var constructedDependencies = this.arraySelect(
             dependencies,
-            dependency => this.toConstructedDependency(
+            dependency => this.toConstructedDependency({
                 dependency,
-                dependencyChain.concat(dependencyNameFrom(dependency))));
+                dependencyChain: dependencyChain.concat(dependencyNameFrom(dependency))
+            }));
 
-        return this.createInjectedInstanceOf(constructor, constructedDependencies);
+        return this.createInjectedInstanceOf({ constructor, constructedDependencies });
     }
 
-    createInjectedInstanceOf(construct, argArray) {
-        var args = [null].concat(argArray);
-        var FactoryFunction = construct.bind.apply(construct, args);
+    createInjectedInstanceOf({constructor, constructedDependencies}) {
+        var args = [null].concat(constructedDependencies);
+        var FactoryFunction = constructor.bind.apply(constructor, args);
         return new FactoryFunction();
     }
 
-    toConstructedDependency(dependency, dependencyChain) {
+    toConstructedDependency({dependency, dependencyChain}) {
         if (this.getDependenciesOf(dependency).length > 0)
             return this.get(dependency, dependencyChain);
         else
@@ -68,7 +69,7 @@ export class Ioc {
         for (var i = 0; i < arr.length; i++) ret.push(del.call(this, arr[i]));
         return ret;
     }
-    
+
     arrayAny(arr, del) {
         for (var i = 0; i < arr.length; i++) if (del.call(this, arr[i])) return true;
         return false;
@@ -78,7 +79,7 @@ export class Ioc {
         for (var i = 0; i < arr.length; i++) if (del.call(this, arr[i])) return arr[i];
         return null;
     }
-    
+
     arrayCount(arr, del) {
         var count = 0;
         for (var i = 0; i < arr.length; i++) if (del.call(this, arr[i])) count++;
