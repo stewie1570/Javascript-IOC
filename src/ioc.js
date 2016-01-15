@@ -3,16 +3,18 @@ export class Ioc {
     constructor() {
         this.registeredDependencies = [];
 
-        this.dependencyNameFrom = dependency => (this.first(
-            this.registeredDependencies,
-            binding => binding.construct == dependency) || { argName: null }).argName;
+        this.dependencyNameFrom = dependency => (this.first({
+            from: this.registeredDependencies,
+            matching: binding => binding.construct == dependency
+        }) || { dependencyName: null }).dependencyName;
 
-        this.hasRepeatsIn = array => this.any(
-            array,
-            element => this.count(array, e => e === element) > 1);
+        this.hasRepeatsIn = array => this.any({
+            from: array,
+            matching: outer => this.count({ from: array, matching: inner => inner === outer }) > 1
+        });
 
-        this.createInjectedInstanceOf = ({constructor, constructedDependencies}) => {
-            var args = [null].concat(constructedDependencies);
+        this.createInjectedInstanceOf = ({constructor, dependencies}) => {
+            var args = [null].concat(dependencies);
             var FactoryFunction = constructor.bind.apply(constructor, args);
             return new FactoryFunction();
         }
@@ -24,32 +26,35 @@ export class Ioc {
                 return typeof (dependency) == "function" ? new dependency() : dependency;
         }
 
-        this.toDependencyObject = (arg) => {
-            var dependency = this.first(this.registeredDependencies, regDep => regDep.argName == arg);
+        this.toDependencyObject = (dependencyName) => {
+            var dependency = this.first({
+                from: this.registeredDependencies,
+                matching: regDep => regDep.dependencyName == dependencyName
+            });
             if (dependency == null)
-                throw new Error(`Un-registered dependency '${arg}'.`);
+                throw new Error(`Un-registered dependency '${dependencyName}'.`);
             return dependency.construct || dependency.constant;
         }
 
-        this.select = (arr, del) => {
+        this.select = ({from, to}) => {
             var ret = [];
-            for (var i = 0; i < arr.length; i++) ret.push(del.call(this, arr[i]));
+            for (var i = 0; i < from.length; i++) ret.push(to.call(this, from[i]));
             return ret;
         }
 
-        this.any = (arr, del) => {
-            for (var i = 0; i < arr.length; i++) if (del.call(this, arr[i])) return true;
+        this.any = ({from, matching}) => {
+            for (var i = 0; i < from.length; i++) if (matching.call(this, from[i])) return true;
             return false;
         }
 
-        this.first = (arr, del) => {
-            for (var i = 0; i < arr.length; i++) if (del.call(this, arr[i])) return arr[i];
+        this.first = ({from, matching}) => {
+            for (var i = 0; i < from.length; i++) if (matching.call(this, from[i])) return from[i];
             return null;
         }
 
-        this.count = (arr, del) => {
+        this.count = ({from, matching}) => {
             var count = 0;
-            for (var i = 0; i < arr.length; i++) if (del.call(this, arr[i])) count++;
+            for (var i = 0; i < from.length; i++) if (matching.call(this, from[i])) count++;
             return count;
         }
 
@@ -78,36 +83,37 @@ export class Ioc {
         }
     }
 
-    bind(argName, obj) {
+    bind(dependencyName, obj) {
         if (typeof (obj) == "function")
-            this.bindToConstructor(argName, obj);
+            this.bindToConstructor(dependencyName, obj);
         else
-            this.bindToConstant(argName, obj);
+            this.bindToConstant(dependencyName, obj);
     }
 
-    bindToConstructor(argName, construct) {
-        this.registeredDependencies.push({ argName: argName, construct: construct });
+    bindToConstructor(dependencyName, construct) {
+        this.registeredDependencies.push({ dependencyName, construct: construct });
     }
 
-    bindToConstant(argName, constant) {
-        this.registeredDependencies.push({ argName: argName, constant: constant });
+    bindToConstant(dependencyName, constant) {
+        this.registeredDependencies.push({ dependencyName, constant: constant });
     }
 
     get(constructor, dependencyChain) {
         dependencyChain = dependencyChain || [this.dependencyNameFrom(constructor)];
 
-        var dependencies = this.select(this.getDependenciesOf(constructor), this.toDependencyObject);
+        var dependencies = this.select({ from: this.getDependenciesOf(constructor), to: this.toDependencyObject });
 
         if (this.hasRepeatsIn(dependencyChain))
             throw new Error(`Circular dependency detected: ${dependencyChain.join(' <- ') }.`);
 
-        var constructedDependencies = this.select(
-            dependencies,
-            dependency => this.toConstructedDependency({
+        var toConstructedDependencies = this.select({
+            from: dependencies,
+            to: dependency => this.toConstructedDependency({
                 dependency,
                 dependencyChain: dependencyChain.concat(this.dependencyNameFrom(dependency))
-            }));
+            })
+        });
 
-        return this.createInjectedInstanceOf({ constructor, constructedDependencies });
+        return this.createInjectedInstanceOf({ constructor, dependencies: toConstructedDependencies });
     }
 };
