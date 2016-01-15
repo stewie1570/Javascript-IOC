@@ -19,3 +19,8 @@ export var count = ({from, matching}) => {
 	for (var i = 0; i < from.length; i++) if (matching.call(this, from[i])) count++;
 	return count;
 }
+
+export var hasRepeatsIn = array => any({
+	from: array,
+	matching: outer => count({ from: array, matching: inner => inner === outer }) > 1
+});

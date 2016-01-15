@@ -1,4 +1,4 @@
-import { select, any, first, count } from './array-helpers';
+import { select, any, first, count, hasRepeatsIn } from './array-helpers';
 
 export class Ioc {
 
@@ -9,11 +9,6 @@ export class Ioc {
             from: this.registeredDependencies,
             matching: binding => binding.construct == dependency
         }) || { dependencyName: null }).dependencyName;
-
-        this.hasRepeatsIn = array => any({
-            from: array,
-            matching: outer => count({ from: array, matching: inner => inner === outer }) > 1
-        });
 
         this.createInjectedInstanceOf = ({constructor, dependencies}) => {
             var args = [null].concat(dependencies);
@@ -83,7 +78,7 @@ export class Ioc {
 
         var dependencies = select({ from: this.getDependenciesOf(constructor), to: this.toDependencyObject });
 
-        if (this.hasRepeatsIn(dependencyChain))
+        if (hasRepeatsIn(dependencyChain))
             throw new Error(`Circular dependency detected: ${dependencyChain.join(' <- ') }.`);
 
         var toConstructedDependencies = select({
