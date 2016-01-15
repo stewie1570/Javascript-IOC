@@ -75,11 +75,11 @@ export class Ioc {
 
     get(constructor, dependencyChain) {
         dependencyChain = dependencyChain || [this.dependencyNameFrom(constructor)];
-
-        var dependencies = select({ from: this.getDependenciesOf(constructor), to: this.toDependencyObject });
-
+        
         if (hasRepeatsIn(dependencyChain))
             throw new Error(`Circular dependency detected: ${dependencyChain.join(' <- ') }.`);
+
+        var dependencies = select({ from: this.getDependenciesOf(constructor), to: this.toDependencyObject });
 
         var toConstructedDependencies = select({
             from: dependencies,
