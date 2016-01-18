@@ -70,7 +70,6 @@ describe("Dependency Injector", () => {
             ioc.bindToConstructor("impl", Implementation);
             ioc.bindToConstructor("dependency1", Dependency1);
             ioc.bindToConstructor("dependency2", Dependency2);
-            ioc.bindToConstant("constTest", "constant success");
         
             //Act
             //Assert
