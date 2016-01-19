@@ -16,14 +16,14 @@ export class Ioc {
             return new FactoryFunction();
         }
 
-        this.toConstructedDependency = ({dependency, dependencyChain}) => {
-            if (this.getDependenciesOf(dependency).length > 0)
-                return this.get(dependency, dependencyChain);
+        this.toConstructedDependency = ({dependencyType, dependencyChain}) => {
+            if (this.getDependenciesOf(dependencyType).length > 0)
+                return this.get(dependencyType, dependencyChain);
             else
-                return typeof (dependency) == "function" ? new dependency() : dependency;
+                return typeof (dependencyType) == "function" ? new dependencyType() : dependencyType;
         }
 
-        this.toDependencyObject = (dependencyName) => {
+        this.toDependencyType = (dependencyName) => {
             var dependency = first({
                 from: this.registeredDependencies,
                 matching: regDep => regDep.dependencyName == dependencyName
@@ -79,13 +79,13 @@ export class Ioc {
         if (hasRepeatsIn(dependencyChain))
             throw new Error(`Circular dependency detected: ${dependencyChain.join(' <- ') }.`);
 
-        var dependencies = select({ from: this.getDependenciesOf(constructor), to: this.toDependencyObject });
+        var dependencyTypes = select({ from: this.getDependenciesOf(constructor), to: this.toDependencyType });
 
         var toConstructedDependencies = select({
-            from: dependencies,
-            to: dependency => this.toConstructedDependency({
-                dependency,
-                dependencyChain: dependencyChain.concat(this.dependencyNameFrom(dependency))
+            from: dependencyTypes,
+            to: dependencyType => this.toConstructedDependency({
+                dependencyType,
+                dependencyChain: dependencyChain.concat(this.dependencyNameFrom(dependencyType))
             })
         });
 
