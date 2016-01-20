@@ -8,7 +8,7 @@ export class Ioc {
         this.dependencyNameFrom = dependency => (first({
             from: this.registeredDependencies,
             matching: binding => binding.construct == dependency
-        }) || { dependencyName: null }).dependencyName;
+        }) || { dependencyName: this.getUnNamedDependencyStringFrom(dependency) }).dependencyName;
 
         this.createInjectedInstanceOf = ({constructor, dependencies}) => {
             var args = [null].concat(dependencies);
@@ -34,14 +34,14 @@ export class Ioc {
         }
 
         this.getDependenciesOf = construct => {
-            var args = this.getArgNames(construct);
+            var args = this.getArgNamesFrom(construct);
             return typeof (construct.prototype) === "undefined"
                 || typeof (construct.prototype.dependencies) === "undefined"
                 ? args
                 : construct.prototype.dependencies;
         }
 
-        this.getArgNames = construct => {
+        this.getArgNamesFrom = construct => {
             var code = construct
                 .toString()
                 .replace(/\s/g, '');
@@ -55,6 +55,14 @@ export class Ioc {
                     .substring(start, end)
                     .split(",");
             }
+        }
+        
+        this.getUnNamedDependencyStringFrom = construct => {
+            var code = construct
+                .toString()
+                .replace(/\s/g, '');
+            
+            return code.substr(0, code.indexOf(")") + 1);
         }
     }
 
@@ -77,7 +85,7 @@ export class Ioc {
         dependencyChain = dependencyChain || [this.dependencyNameFrom(constructor)];
         
         if (hasRepeatsIn(dependencyChain))
-            throw new Error(`Circular dependency detected: ${dependencyChain.join(' <- ') }.`);
+            throw new Error(`Circular dependency detected in: ${dependencyChain.join(' <- ') }.`);
 
         var dependencyTypes = select({ from: this.getDependenciesOf(constructor), to: this.toDependencyType });
 

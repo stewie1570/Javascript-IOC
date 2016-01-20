@@ -10,7 +10,7 @@ describe("Dependency Injector", () => {
 
     beforeEach(() => ioc = new Ioc());
 
-    describe("binding", () => {
+    describe("Binding", () => {
         it("should support minification via declaring dependencies in prototype.dependencies property", () => {
             //Arrange
             Dependency1 = function () {
@@ -186,43 +186,49 @@ describe("Dependency Injector", () => {
         expect(argNames).to.deep.equal([]);
     });
 
-    it("should throw exception for requested/un-registered dependencies", () => {
-        //Arrange
-        var Constructor = function (unknownDep) { };
-        var exceptionMessage = "";
+    describe("Error Handling", () => {
 
-        //Act
-        try {
-            ioc.get(Constructor);
-        }
-        catch (error) {
-            exceptionMessage = error.message;
-        }
+        it("should throw exception for requested/un-registered dependencies", () => {
+            //Arrange
+            var Constructor = function (unknownDep) { };
+            var exceptionMessage = "";
 
-        //Assert
-        expect(exceptionMessage).to.contain("'unknownDep'");
-    });
+            //Act
+            try {
+                ioc.get(Constructor);
+            }
+            catch (error) {
+                exceptionMessage = error.message;
+            }
 
-    it("should throw when circular dependency is detected", () => {
-        //Arrange
-        Dependency1 = function (Implementation) {
-        };
-        Dependency2 = function (dependency1) {
-        };
-        Implementation = function (dependency2) {
-        };
-        ioc.bindToConstructor("Implementation", Implementation);
-        ioc.bindToConstructor("dependency1", Dependency1);
-        ioc.bindToConstructor("dependency2", Dependency2);
+            //Assert
+            expect(exceptionMessage).to.contain("'unknownDep'");
+        });
+
+        it("should throw when circular dependency is detected", () => {
+            //Arrange
+            Dependency1 = function (Implementation) {
+            };
+            Dependency2 = function (dependency1) {
+            };
+            Implementation = function (dependency2) {
+            };
+            Implementation2 = function(Implementation){
+            }
+            ioc.bindToConstructor("Implementation", Implementation);
+            ioc.bindToConstructor("dependency1", Dependency1);
+            ioc.bindToConstructor("dependency2", Dependency2);
         
-        //Act
-        var errorMessage = "";
-        try {
-            var impl = ioc.get(Implementation);
-        }
-        catch (error) { errorMessage = error.message; }
+            //Act
+            var errorMessage = "";
+            try {
+                var impl = ioc.get(Implementation2);
+            }
+            catch (error) { errorMessage = error.message; }
 
-        //Assert
-        expect(errorMessage).to.equal("Circular dependency detected: Implementation <- dependency2 <- dependency1 <- Implementation.")
+            //Assert
+            expect(errorMessage).to.equal("Circular dependency detected in: function(Implementation) <- Implementation <- dependency2 <- dependency1 <- Implementation.")
+        });
+
     });
 });
