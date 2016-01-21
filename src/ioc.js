@@ -56,12 +56,12 @@ export class Ioc {
                     .split(",");
             }
         }
-        
+
         this.getUnNamedDependencyStringFrom = construct => {
             var code = construct
                 .toString()
                 .replace(/\s/g, '');
-            
+
             return code.substr(0, code.indexOf(")") + 1);
         }
     }
@@ -83,20 +83,22 @@ export class Ioc {
 
     get(constructor, dependencyChain) {
         dependencyChain = dependencyChain || [this.dependencyNameFrom(constructor)];
-        
+
         if (hasRepeatsIn(dependencyChain))
             throw new Error(`Circular dependency detected in: ${dependencyChain.join(' <- ') }.`);
 
         var dependencyTypes = select({ from: this.getDependenciesOf(constructor), to: this.toDependencyType });
 
-        var toConstructedDependencies = select({
-            from: dependencyTypes,
-            to: dependencyType => this.toConstructedDependency({
-                dependencyType,
-                dependencyChain: dependencyChain.concat(this.dependencyNameFrom(dependencyType))
-            })
-        });
-
-        return this.createInjectedInstanceOf({ constructor, dependencies: toConstructedDependencies });
+        return this.createInjectedInstanceOf(
+            {
+                constructor,
+                dependencies: select({
+                    from: dependencyTypes,
+                    to: dependencyType => this.toConstructedDependency({
+                        dependencyType,
+                        dependencyChain: dependencyChain.concat(this.dependencyNameFrom(dependencyType))
+                    })
+                })
+            });
     }
 };
