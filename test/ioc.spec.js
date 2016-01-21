@@ -164,28 +164,6 @@ describe("Dependency Injector", () => {
         });
     });
 
-    it("should be able to get constructor argument names", () => {
-        //Arrange
-        var Constructor = function (arg1, arg2) { };
-
-        //Act
-        var argNames = ioc.getDependenciesOf(Constructor);
-
-        //Assert
-        expect(argNames).to.deep.equal(["arg1", "arg2"]);
-    });
-
-    it("should know when constructors dont have dependencies", () => {
-        //Arrange
-        var Constructor = function () { };
-
-        //Act
-        var argNames = ioc.getDependenciesOf(Constructor);
-
-        //Assert
-        expect(argNames).to.deep.equal([]);
-    });
-
     describe("Error Handling", () => {
 
         it("should throw exception for requested/un-registered dependencies", () => {
