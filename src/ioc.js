@@ -42,17 +42,14 @@ export class Ioc {
             to: dependencyName => this._dependencyTypeFrom({ dependencyName })
         });
 
-        return this._createInjectedInstanceOf(
-            {
-                dependencyType,
-                dependencies: select({
-                    from: dependencyTypes,
-                    to: dependencyType => this._toConstructedDependency({
-                        dependencyType,
-                        dependencyChain: dependencyChain.concat(this._dependencyNameFrom(dependencyType))
-                    })
+        return this._createInjectedInstanceOf({ dependencyType, withDependencies: select({
+                from: dependencyTypes,
+                to: dependencyType => this._toConstructedDependency({
+                    dependencyType,
+                    dependencyChain: dependencyChain.concat(this._dependencyNameFrom(dependencyType))
                 })
-            });
+            })
+        });
     }
 
     _firstRepeatedDependencyIn({dependencyChain}) {
@@ -130,8 +127,8 @@ export class Ioc {
         }) || { dependencyName: this._getUnNamedDependencyStringFrom(dependencyType) }).dependencyName;
     }
 
-    _createInjectedInstanceOf({dependencyType, dependencies}) {
-        var args = [null].concat(dependencies);
+    _createInjectedInstanceOf({dependencyType, withDependencies}) {
+        var args = [null].concat(withDependencies);
         var FactoryFunction = dependencyType.bind.apply(dependencyType, args);
         return new FactoryFunction();
     }
