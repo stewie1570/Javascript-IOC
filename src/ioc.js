@@ -21,20 +21,20 @@ export class Ioc {
         this._registeredDependencies.push({ dependencyName, constant: constant });
     }
 
-    get(constructor, dependencyChain) {
-        dependencyChain = dependencyChain || [this._dependencyNameFrom(constructor)];
+    get(dependencyType, dependencyChain) {
+        dependencyChain = dependencyChain || [this._dependencyNameFrom(dependencyType)];
 
         if (hasRepeatsIn(dependencyChain))
             throw new Error(`Circular dependency detected in: ${dependencyChain.join(' <- ') }.`);
 
         var dependencyTypes = select({
-            from: this._getDependenciesOf(constructor),
-            to: dependency => this._toDependencyType(dependency)
+            from: this._getDependencyNamesFrom(dependencyType),
+            to: dependencyName => this._dependencyTypeFrom({ dependencyName })
         });
 
         return this._createInjectedInstanceOf(
             {
-                constructor,
+                dependencyType,
                 dependencies: select({
                     from: dependencyTypes,
                     to: dependencyType => this._toConstructedDependency({
@@ -45,7 +45,7 @@ export class Ioc {
             });
     }
 
-    _toDependencyType(dependencyName) {
+    _dependencyTypeFrom({dependencyName}) {
         var dependency = first({
             from: this._registeredDependencies,
             matching: regDep => regDep.dependencyName === dependencyName
@@ -57,16 +57,16 @@ export class Ioc {
         return dependency.construct || dependency.constant;
     }
 
-    _getUnNamedDependencyStringFrom(construct) {
-        var code = construct
+    _getUnNamedDependencyStringFrom(dependencyType) {
+        var code = dependencyType
             .toString()
             .replace(/\s/g, '');
 
         return code.substr(0, code.indexOf(")") + 1);
     }
 
-    _getArgNamesFrom(construct) {
-        var code = construct
+    _getArgNamesFrom(dependencyType) {
+        var code = dependencyType
             .toString()
             .replace(/\s/g, '');
         var start = code.indexOf("(") + 1;
@@ -81,31 +81,31 @@ export class Ioc {
         }
     }
 
-    _getDependenciesOf(construct) {
-        var args = this._getArgNamesFrom(construct);
-        return typeof (construct.prototype) === "undefined"
-            || typeof (construct.prototype.dependencies) === "undefined"
+    _getDependencyNamesFrom(dependencyType) {
+        var args = this._getArgNamesFrom(dependencyType);
+        return typeof (dependencyType.prototype) === "undefined"
+            || typeof (dependencyType.prototype.dependencies) === "undefined"
             ? args
-            : construct.prototype.dependencies;
+            : dependencyType.prototype.dependencies;
     }
 
     _toConstructedDependency({dependencyType, dependencyChain}) {
-        if (this._getDependenciesOf(dependencyType).length > 0)
+        if (this._getDependencyNamesFrom(dependencyType).length > 0)
             return this.get(dependencyType, dependencyChain);
         else
             return typeof (dependencyType) == "function" ? new dependencyType() : dependencyType;
     }
 
-    _dependencyNameFrom(dependency) {
+    _dependencyNameFrom(dependencyType) {
         return (first({
             from: this._registeredDependencies,
-            matching: binding => binding.construct == dependency
-        }) || { dependencyName: this._getUnNamedDependencyStringFrom(dependency) }).dependencyName;
+            matching: binding => binding.construct == dependencyType
+        }) || { dependencyName: this._getUnNamedDependencyStringFrom(dependencyType) }).dependencyName;
     }
 
-    _createInjectedInstanceOf({constructor, dependencies}) {
+    _createInjectedInstanceOf({dependencyType, dependencies}) {
         var args = [null].concat(dependencies);
-        var FactoryFunction = constructor.bind.apply(constructor, args);
+        var FactoryFunction = dependencyType.bind.apply(dependencyType, args);
         return new FactoryFunction();
     }
 };
