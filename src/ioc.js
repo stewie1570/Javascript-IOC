@@ -1,4 +1,4 @@
-import { select, any, first, count, hasRepeatsIn } from './array-helpers';
+import { select, first, count } from './array-helpers';
 
 export class Ioc {
 
@@ -23,9 +23,19 @@ export class Ioc {
 
     get(dependencyType, dependencyChain) {
         dependencyChain = dependencyChain || [this._dependencyNameFrom(dependencyType)];
+        var firstRepeatedDependency = this._firstRepeatedDependencyIn({ dependencyChain });
 
-        if (hasRepeatsIn(dependencyChain))
-            throw new Error(`Circular dependency detected in: ${dependencyChain.join(' <- ') }.`);
+        if (firstRepeatedDependency) {
+            var highlightedDependencyChain = select({
+                from: dependencyChain,
+                to: dependencyName =>
+                    dependencyName == firstRepeatedDependency.dependencyName
+                        ? `**${dependencyName}**`
+                        : dependencyName
+            });
+
+            throw new Error(`Circular dependency detected in: ${highlightedDependencyChain.join(' <- ') }.`);
+        }
 
         var dependencyTypes = select({
             from: this._getDependencyNamesFrom(dependencyType),
@@ -43,6 +53,23 @@ export class Ioc {
                     })
                 })
             });
+    }
+
+    _firstRepeatedDependencyIn({dependencyChain}) {
+        var countsOfDependencies = select({
+            from: dependencyChain,
+            to: dependencyName => {
+                return {
+                    dependencyName,
+                    count: count({ from: dependencyChain, matching: element => element === dependencyName })
+                };
+            }
+        });
+
+        return first({
+            from: countsOfDependencies,
+            matching: countOfDependency => countOfDependency.count > 1
+        });
     }
 
     _dependencyTypeFrom({dependencyName}) {

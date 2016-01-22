@@ -205,7 +205,7 @@ describe("Dependency Injector", () => {
             catch (error) { errorMessage = error.message; }
 
             //Assert
-            expect(errorMessage).to.equal("Circular dependency detected in: function(Implementation) <- Implementation <- dependency2 <- dependency1 <- Implementation.")
+            expect(errorMessage).to.equal("Circular dependency detected in: function(Implementation) <- **Implementation** <- dependency2 <- dependency1 <- **Implementation**.")
         });
 
     });
