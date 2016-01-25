@@ -1,4 +1,4 @@
-import { select, first, count } from './array-helpers';
+import { select, first, count, sum } from './array-helpers';
 
 export class Ioc {
 
@@ -7,8 +7,10 @@ export class Ioc {
     }
 
     bind(dependencyName, bind) {
-        var isAutoBinding = !(bind.toConstant || bind.toConstructor);
-        var isBindingValid = Boolean(bind.to) === isAutoBinding && !(bind.toConstant && bind.toConstructor);
+        var isBindingValid = sum(select({
+            from: [bind.to, bind.toConstructor, bind.toConstant],
+            to: isUsingDependencyType => isUsingDependencyType ? 1 : 0
+        })) === 1;
         
         if(isBindingValid)
         {

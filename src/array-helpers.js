@@ -14,3 +14,9 @@ export var count = ({from, matching}) => {
 	for (var i = 0; i < from.length; i++) if (matching.call(this, from[i])) count++;
 	return count;
 }
+
+export var sum = array => {
+	var count = 0;
+	for (var i = 0; i < array.length; i++) count += array[i];
+	return count;
+}
