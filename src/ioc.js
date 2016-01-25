@@ -13,11 +13,12 @@ export class Ioc {
             this._registeredDependencies.push({ dependencyName, constant: bind.toConstant });
         else if(bind.to)
         {
-            if (typeof (bind.to) == "function")
-                this._registeredDependencies.push({ dependencyName, construct: bind.to });
-            else
-                this._registeredDependencies.push({ dependencyName, constant: bind.to });
+            var binding = { dependencyName };
+            binding[typeof (bind.to) == 'function' ? 'construct' : 'constant'] = bind.to;
+            this._registeredDependencies.push(binding);
         }
+        else
+            throw new Error(`Unable to bind "${dependencyName}". Binding must contain a to, toConstructor or toConstant value.`);
     }
 
     get(dependencyType, dependencyChain) {

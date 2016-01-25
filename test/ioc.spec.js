@@ -182,6 +182,22 @@ describe("Dependency Injector", () => {
             //Assert
             expect(exceptionMessage).to.contain("'unknownDep'");
         });
+        
+        it("should throw exception for invalid bindings", () => {
+            //Arrange
+            var exceptionMessage = '';
+            
+            //Act
+            try {
+                ioc.bind("dependency", { unknownProp: "with some value"});
+            }
+            catch (error) {
+                exceptionMessage = error.message;
+            }
+
+            //Assert
+            expect(exceptionMessage).to.equal('Unable to bind "dependency". Binding must contain a to, toConstructor or toConstant value.');
+        });
 
         it("should throw when circular dependency is detected", () => {
             //Arrange
