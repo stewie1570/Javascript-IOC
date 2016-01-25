@@ -7,7 +7,10 @@ export class Ioc {
     }
 
     bind(dependencyName, bind) {
-        if(bind.to || bind.toConstructor || bind.toConstant)
+        var isAutoBinding = !(bind.toConstant || bind.toConstructor);
+        var isBindingValid = Boolean(bind.to) === isAutoBinding;
+        
+        if(isBindingValid)
         {
             var useConstructor = bind.toConstructor || typeof (bind.to) == 'function';
             var binding = { dependencyName };
@@ -15,7 +18,7 @@ export class Ioc {
             this._registeredDependencies.push(binding);
         }
         else
-            throw new Error(`Unable to bind "${dependencyName}". Binding must contain a to, toConstructor or toConstant value.`);
+            throw new Error(`Unable to bind "${dependencyName}". Binding must contain one (and only one) of the following properties: "to", "toConstructor" or "toConstant".`);
     }
 
     get(dependencyType, dependencyChain) {
