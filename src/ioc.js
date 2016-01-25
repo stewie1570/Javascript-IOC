@@ -8,7 +8,7 @@ export class Ioc {
 
     bind(dependencyName, bind) {
         var isAutoBinding = !(bind.toConstant || bind.toConstructor);
-        var isBindingValid = Boolean(bind.to) === isAutoBinding;
+        var isBindingValid = Boolean(bind.to) === isAutoBinding && !(bind.toConstant && bind.toConstructor);
         
         if(isBindingValid)
         {

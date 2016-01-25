@@ -199,13 +199,29 @@ describe("Dependency Injector", () => {
             expect(exceptionMessage).to.equal('Unable to bind "dependency". Binding must contain one (and only one) of the following properties: "to", "toConstructor" or "toConstant".');
         });
 
-        it("should throw exception for invalid bindings", () => {
+        it("should throw exception for invalid binding when auto binding and manual binding at the same time", () => {
             //Arrange
             var exceptionMessage = '';
             
             //Act
             try {
                 ioc.bind("dependency", { to: "some value", toConstant: "some other value" });
+            }
+            catch (error) {
+                exceptionMessage = error.message;
+            }
+
+            //Assert
+            expect(exceptionMessage).to.equal('Unable to bind "dependency". Binding must contain one (and only one) of the following properties: "to", "toConstructor" or "toConstant".');
+        });
+
+        it("should throw exception for invalid binding when doing multiple manual binding types at the same time", () => {
+            //Arrange
+            var exceptionMessage = '';
+            
+            //Act
+            try {
+                ioc.bind("dependency", { toConstructor: function () { }, toConstant: "some other value" });
             }
             catch (error) {
                 exceptionMessage = error.message;
