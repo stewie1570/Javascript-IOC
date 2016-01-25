@@ -30,10 +30,10 @@ Here is some example usage from the unit tests:
         Implementation2 = function (impl) {
             this.success = impl.prop1;
         };
-        ioc.bindToConstructor("impl", Implementation);
-        ioc.bindToConstructor("dependency1", Dependency1);
-        ioc.bindToConstructor("dependency2", Dependency2);
-        
+        ioc.bind("impl", { toConstructor: Implementation });
+        ioc.bind("dependency1", { toConstructor: Dependency1 });
+        ioc.bind("dependency2", { toConstructor: Dependency2 });
+    
         //Act
         //Assert
         expect(ioc.get(Implementation2).success).to.equal("success1");
@@ -47,8 +47,8 @@ Here is some example usage from the unit tests:
         Dependency2 = function () {
             this.prop1 = "success2";
         };
-        ioc.bindToConstructor("dependency1", Dependency1);
-        ioc.bindToConstructor("dependency2", Dependency2);
+        ioc.bind("dependency1", { toConstructor: Dependency1 });
+        ioc.bind("dependency2", { toConstructor: Dependency2 });
 
         class ClassImpl {
             constructor(dependency1, dependency2) {
@@ -56,7 +56,7 @@ Here is some example usage from the unit tests:
                 this.prop2 = dependency2.prop1;
             }
         }
-        
+    
         //Act
         var impl = ioc.get(ClassImpl);
 
@@ -78,13 +78,40 @@ Here is some example usage from the unit tests:
             this.prop2 = d2.prop1;
         };
         ManualDepImpl.prototype.dependencies = ["dependency1", "dependency2"];
-        ioc.bindToConstructor("dependency1", Dependency1);
-        ioc.bindToConstructor("dependency2", Dependency2);
-        
+        ioc.bind("dependency1", { toConstructor: Dependency1 });
+        ioc.bind("dependency2", { toConstructor: Dependency2 });
+    
         //Act
         var result = ioc.get(ManualDepImpl);
 
         //Assert
         expect(result.prop1).to.equal("success1");
         expect(result.prop2).to.equal("success2");
+    });
+    
+    it("should support binding to constants, not just constructors", () => {
+        //Arrange
+        ioc.bind("constTest", { toConstant: "constant success" });
+        Implementation = function (constTest) { this.prop1 = constTest; };
+
+        //Act
+        //Assert
+        expect(ioc.get(Implementation).prop1).to.equal("constant success");
+    });
+    
+    it("should automatically call bind to constructor or bind to constant", () => {
+        //Arrange
+        ioc.bind("testConst", { to: { prop: "constant worked" } });
+        ioc.bind("testConstruct", { to: function () { this.prop = "constructor works"; } });
+        var impl = function (testConst, testConstruct) {
+            this.testConst = testConst;
+            this.testConstruct = testConstruct
+        }
+
+        //Act
+        var inst = ioc.get(impl);
+
+        //Assert
+        expect(inst.testConst.prop).to.equal("constant worked");
+        expect(inst.testConstruct.prop).to.equal("constructor works");
     });

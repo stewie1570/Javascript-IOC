@@ -24,8 +24,8 @@ describe("Dependency Injector", () => {
                 this.prop2 = d2.prop1;
             };
             ManualDepImpl.prototype.dependencies = ["dependency1", "dependency2"];
-            ioc.bindToConstructor("dependency1", Dependency1);
-            ioc.bindToConstructor("dependency2", Dependency2);
+            ioc.bind("dependency1", { toConstructor: Dependency1 });
+            ioc.bind("dependency2", { toConstructor: Dependency2 });
         
             //Act
             var result = ioc.get(ManualDepImpl);
@@ -35,10 +35,10 @@ describe("Dependency Injector", () => {
             expect(result.prop2).to.equal("success2");
         });
 
-        it("should automatically call bindToConstructor or bindToConstant", () => {
+        it("should automatically call bind to constructor or bind to constant", () => {
             //Arrange
-            ioc.bind("testConst", { prop: "constant worked" });
-            ioc.bind("testConstruct", function () { this.prop = "constructor works"; });
+            ioc.bind("testConst", { to: { prop: "constant worked" } });
+            ioc.bind("testConstruct", { to: function () { this.prop = "constructor works"; } });
             var impl = function (testConst, testConstruct) {
                 this.testConst = testConst;
                 this.testConstruct = testConstruct
@@ -67,9 +67,9 @@ describe("Dependency Injector", () => {
             Implementation2 = function (impl) {
                 this.success = impl.prop1;
             };
-            ioc.bindToConstructor("impl", Implementation);
-            ioc.bindToConstructor("dependency1", Dependency1);
-            ioc.bindToConstructor("dependency2", Dependency2);
+            ioc.bind("impl", { toConstructor: Implementation });
+            ioc.bind("dependency1", { toConstructor: Dependency1 });
+            ioc.bind("dependency2", { toConstructor: Dependency2 });
         
             //Act
             //Assert
@@ -84,8 +84,8 @@ describe("Dependency Injector", () => {
             Dependency2 = function () {
                 this.prop1 = "success2";
             };
-            ioc.bindToConstructor("dependency1", Dependency1);
-            ioc.bindToConstructor("dependency2", Dependency2);
+            ioc.bind("dependency1", { toConstructor: Dependency1 });
+            ioc.bind("dependency2", { toConstructor: Dependency2 });
 
             class ClassImpl {
                 constructor(dependency1, dependency2) {
@@ -120,8 +120,8 @@ describe("Dependency Injector", () => {
                 }
             }
 
-            ioc.bindToConstructor("dependency1", Dependency1);
-            ioc.bind("dep", Dep);
+            ioc.bind("dependency1", { toConstructor: Dependency1 });
+            ioc.bind("dep", { to: Dep });
         
             //Act
             var impl = ioc.get(ClassImpl);
@@ -142,8 +142,8 @@ describe("Dependency Injector", () => {
                 this.prop1 = dependency1.prop1;
                 this.prop2 = dependency2.prop1;
             };
-            ioc.bindToConstructor("dependency1", Dependency1);
-            ioc.bindToConstructor("dependency2", Dependency2);
+            ioc.bind("dependency1", { toConstructor: Dependency1 });
+            ioc.bind("dependency2", { toConstructor: Dependency2 });
         
             //Act
             var impl = ioc.get(Implementation);
@@ -155,7 +155,7 @@ describe("Dependency Injector", () => {
 
         it("should support binding to constants, not just constructors", () => {
             //Arrange
-            ioc.bindToConstant("constTest", "constant success");
+            ioc.bind("constTest", { toConstant: "constant success" });
             Implementation = function (constTest) { this.prop1 = constTest; };
 
             //Act
@@ -191,11 +191,11 @@ describe("Dependency Injector", () => {
             };
             Implementation = function (dependency2) {
             };
-            Implementation2 = function(Implementation){
+            Implementation2 = function (Implementation) {
             }
-            ioc.bindToConstructor("Implementation", Implementation);
-            ioc.bindToConstructor("dependency1", Dependency1);
-            ioc.bindToConstructor("dependency2", Dependency2);
+            ioc.bind("Implementation", { toConstructor: Implementation });
+            ioc.bind("dependency1", { toConstructor: Dependency1 });
+            ioc.bind("dependency2", { toConstructor: Dependency2 });
         
             //Act
             var errorMessage = "";

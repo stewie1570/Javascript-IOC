@@ -6,19 +6,18 @@ export class Ioc {
         this._registeredDependencies = [];
     }
 
-    bind(dependencyName, obj) {
-        if (typeof (obj) == "function")
-            this.bindToConstructor(dependencyName, obj);
-        else
-            this.bindToConstant(dependencyName, obj);
-    }
-
-    bindToConstructor(dependencyName, construct) {
-        this._registeredDependencies.push({ dependencyName, construct: construct });
-    }
-
-    bindToConstant(dependencyName, constant) {
-        this._registeredDependencies.push({ dependencyName, constant: constant });
+    bind(dependencyName, bind) {
+        if(bind.toConstructor)
+            this._registeredDependencies.push({ dependencyName, construct: bind.toConstructor });
+        else if(bind.toConstant)
+            this._registeredDependencies.push({ dependencyName, constant: bind.toConstant });
+        else if(bind.to)
+        {
+            if (typeof (bind.to) == "function")
+                this._registeredDependencies.push({ dependencyName, construct: bind.to });
+            else
+                this._registeredDependencies.push({ dependencyName, constant: bind.to });
+        }
     }
 
     get(dependencyType, dependencyChain) {
