@@ -35,7 +35,7 @@ describe("Dependency Injector", () => {
             expect(result.prop2).to.equal("success2");
         });
 
-        it("should automatically call bind to constructor or bind to constant", () => {
+        it("should automatically bind to constructor or bind to constant", () => {
             //Arrange
             ioc.bind("testConst", { to: { prop: "constant worked" } });
             ioc.bind("testConstruct", { to: function () { this.prop = "constructor works"; } });
