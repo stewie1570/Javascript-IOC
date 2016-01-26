@@ -9,7 +9,7 @@ export class Ioc {
     bind(dependencyName, bind) {
         var isBindingValid = sum(select({
             from: [bind.to, bind.toConstructor, bind.toConstant],
-            to: isUsingDependencyType => isUsingDependencyType ? 1 : 0
+            to: bindingType => bindingType ? 1 : 0
         })) === 1;
         
         if(isBindingValid)
