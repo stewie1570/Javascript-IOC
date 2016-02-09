@@ -52,7 +52,7 @@ export class Ioc {
 
         return this._createInjectedInstanceOf({ dependencyType, withDependencies: select({
                 from: dependencies,
-                to: ({dependencyType, isConstant}) => this._toConstructedDependency({
+                to: ({dependencyType, isConstant}) => this._constructedDependencyFrom({
                     dependencyType,
                     isConstant,
                     dependencyChain: dependencyChain.concat(this._dependencyNameFrom(dependencyType))
@@ -122,7 +122,7 @@ export class Ioc {
             : dependencyType.prototype.dependencies;
     }
 
-    _toConstructedDependency({dependencyType, dependencyChain, isConstant}) {
+    _constructedDependencyFrom({dependencyType, dependencyChain, isConstant}) {
         if (this._getDependencyNamesFrom(dependencyType).length > 0)
             return this.get(dependencyType, dependencyChain);
         else
