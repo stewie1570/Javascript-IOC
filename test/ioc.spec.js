@@ -162,6 +162,16 @@ describe("Dependency Injector", () => {
             //Assert
             expect(ioc.get(Implementation).prop1).to.equal("constant success");
         });
+        
+        it("should support binding to functions as constants", () => {
+            //Arrange
+            ioc.bind("provider", { toConstant: () => "constant success" });
+            Implementation = function (provider) { this.prop1 = provider(); };
+
+            //Act
+            //Assert
+            expect(ioc.get(Implementation).prop1).to.equal("constant success");
+        });
     });
 
     describe("Error Handling", () => {

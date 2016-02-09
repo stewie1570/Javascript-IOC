@@ -39,15 +39,22 @@ export class Ioc {
             throw new Error(`Circular dependency detected in: ${highlightedDependencyChain.join(' <- ') }.`);
         }
 
-        var dependencyTypes = select({
+        var dependencies = select({
             from: this._getDependencyNamesFrom(dependencyType),
-            to: dependencyName => this._dependencyTypeFrom({ dependencyName })
+            to: dependencyName => {
+                var dependency = this._dependencyFrom({ dependencyName });
+                return {
+                    dependencyType: dependency.construct || dependency.constant,
+                    isConstant: Boolean(dependency.constant)
+                };
+            }
         });
 
         return this._createInjectedInstanceOf({ dependencyType, withDependencies: select({
-                from: dependencyTypes,
-                to: dependencyType => this._toConstructedDependency({
+                from: dependencies,
+                to: ({dependencyType, isConstant}) => this._toConstructedDependency({
                     dependencyType,
+                    isConstant,
                     dependencyChain: dependencyChain.concat(this._dependencyNameFrom(dependencyType))
                 })
             })
@@ -71,7 +78,7 @@ export class Ioc {
         });
     }
 
-    _dependencyTypeFrom({dependencyName}) {
+    _dependencyFrom({dependencyName}) {
         var dependency = first({
             from: this._registeredDependencies,
             matching: regDep => regDep.dependencyName === dependencyName
@@ -80,7 +87,7 @@ export class Ioc {
         if (dependency == null)
             throw new Error(`Un-registered dependency '${dependencyName}'.`);
 
-        return dependency.construct || dependency.constant;
+        return dependency;
     }
 
     _getUnNamedDependencyStringFrom(dependencyType) {
@@ -115,11 +122,11 @@ export class Ioc {
             : dependencyType.prototype.dependencies;
     }
 
-    _toConstructedDependency({dependencyType, dependencyChain}) {
+    _toConstructedDependency({dependencyType, dependencyChain, isConstant}) {
         if (this._getDependencyNamesFrom(dependencyType).length > 0)
             return this.get(dependencyType, dependencyChain);
         else
-            return typeof (dependencyType) == "function" ? new dependencyType() : dependencyType;
+            return typeof (dependencyType) == "function" && !isConstant ? new dependencyType() : dependencyType;
     }
 
     _dependencyNameFrom(dependencyType) {
