@@ -43,20 +43,26 @@ describe("Dependency Injector", () => {
             Dependency2 = function () {
                 this.prop1 = "success2";
             };
-            ManualDepImpl = function ({dependency1, dependency2}) {
+            ManualDepImpl = function (dependency0, {dependency1, dependency2}, dependency3) {
+                this.prop0 = dependency0;
                 this.prop1 = dependency1.prop1;
                 this.prop2 = dependency2.prop1;
+                this.prop3 = dependency3;
             };
-            ManualDepImpl.prototype.dependencies = [["dependency1", "dependency2"]];
+            ManualDepImpl.prototype.dependencies = ["dependency0", ["dependency1", "dependency2"], "dependency3"];
+            ioc.bind("dependency0", { toConstant: "success0" });
             ioc.bind("dependency1", { toConstructor: Dependency1 });
             ioc.bind("dependency2", { toConstructor: Dependency2 });
+            ioc.bind("dependency3", { toConstant: "success3" });
         
             //Act
             var result = ioc.get(ManualDepImpl);
 
             //Assert
+            expect(result.prop0).to.equal("success0");
             expect(result.prop1).to.equal("success1");
             expect(result.prop2).to.equal("success2");
+            expect(result.prop3).to.equal("success3");
         });
 
         it("should automatically bind to constructor or bind to constant", () => {
