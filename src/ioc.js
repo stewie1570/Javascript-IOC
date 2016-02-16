@@ -1,4 +1,5 @@
 import { select, first, count, sum } from './array-helpers';
+import { zip, zipToObject } from './utilities';
 
 export class Ioc {
 
@@ -11,9 +12,8 @@ export class Ioc {
             from: [bind.to, bind.toConstructor, bind.toConstant],
             to: bindingType => bindingType ? 1 : 0
         })) === 1;
-        
-        if(isBindingValid)
-        {
+
+        if (isBindingValid) {
             var useConstructor = bind.toConstructor || typeof (bind.to) == 'function';
             var binding = { dependencyName };
             binding[useConstructor ? 'construct' : 'constant'] = bind.to || (useConstructor ? bind.toConstructor : bind.toConstant);
@@ -39,25 +39,47 @@ export class Ioc {
             throw new Error(`Circular dependency detected in: ${highlightedDependencyChain.join(' <- ') }.`);
         }
 
-        var dependencies = select({
-            from: this._getDependencyNamesFrom(dependencyType),
-            to: dependencyName => {
-                var dependency = this._dependencyFrom({ dependencyName });
-                return {
-                    dependencyType: dependency.construct || dependency.constant,
-                    isConstant: Boolean(dependency.constant)
-                };
-            }
+        var dependencyNames = this._getDependencyNamesFrom(dependencyType);
+        var dependencyFromName = dependencyName => {
+            var dependency = this._dependencyFrom({ dependencyName });
+            return {
+                dependencyType: dependency.construct || dependency.constant,
+                isConstant: Boolean(dependency.constant),
+                dependencyName
+            };
+        };
+        var dependenciesFromNames = dependencyNames => select({
+            from: dependencyNames,
+            to: dependencyName => Array.isArray(dependencyName)
+                ? dependenciesFromNames(dependencyName)
+                : dependencyFromName(dependencyName)
         });
 
-        return this._createInjectedInstanceOf({ dependencyType, withDependencies: select({
-                from: dependencies,
-                to: ({dependencyType, isConstant}) => this._constructedDependencyFrom({
-                    dependencyType,
-                    isConstant,
-                    dependencyChain: dependencyChain.concat(this._dependencyNameFrom(dependencyType))
+        var dependencies = dependenciesFromNames(dependencyNames);
+
+        var constructedDependenciesFrom = dependencies => select({
+            from: dependencies,
+            to: dependency => Array.isArray(dependency)
+                ? constructedDependenciesFrom(dependency)
+                : this._constructedDependencyFrom({
+                    dependencyType: dependency.dependencyType,
+                    isConstant: dependency.isConstant,
+                    dependencyChain: dependencyChain.concat(this._dependencyNameFrom(dependency.dependencyType))
                 })
-            })
+        });
+
+        var constructedDependencies = zip(dependencyNames, constructedDependenciesFrom(dependencies), (name, constructedDependency) => {
+            var isObjectMatching = Array.isArray(name) && Array.isArray(constructedDependency);
+            return isObjectMatching
+                ? zipToObject(name, constructedDependency, (name, constructedDependency) => {
+                    return { [name]: constructedDependency };
+                })
+                : constructedDependency;
+        });
+
+        return this._createInjectedInstanceOf({
+            dependencyType,
+            withDependencies: constructedDependencies
         });
     }
 
