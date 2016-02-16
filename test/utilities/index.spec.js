@@ -18,7 +18,7 @@ describe("Utilities: ", () => {
 			});
 		});
 		
-		it("should iterate past length of first array", () => {
+		it("should not iterate past length of first array", () => {
 			//Arrange
 			var array1 = [1, 2];
 			var array2 = ["one", "two", "three"];
@@ -33,7 +33,7 @@ describe("Utilities: ", () => {
 			});
 		});
 		
-		it("should iterate past length of second array", () => {
+		it("should not iterate past length of second array", () => {
 			//Arrange
 			var array1 = [1, 2, 3];
 			var array2 = ["one", "two"];
@@ -66,7 +66,7 @@ describe("Utilities: ", () => {
 			]);
 		});
 		
-		it("should iterate past length of first array", () => {
+		it("should not iterate past length of first array", () => {
 			//Arrange
 			var array1 = [1, 2];
 			var array2 = ["one", "two", "three"];
@@ -81,7 +81,7 @@ describe("Utilities: ", () => {
 			]);
 		});
 		
-		it("should iterate past length of second array", () => {
+		it("should not iterate past length of second array", () => {
 			//Arrange
 			var array1 = [1, 2, 3];
 			var array2 = ["one", "two"];
