@@ -44,25 +44,15 @@ export class Ioc {
 
         var dependencyNames = this._getDependencyNamesFrom({ dependencyType });
         var dependencies = this._dependenciesFromNames({ dependencyNames });
+        var constructedDependencies = this._constructedDependenciesFrom({ dependencies, dependencyChain });
 
         return this._createInjectedInstanceOf({
             dependencyType,
-            withDependencies: this._constructedDependenciesFrom({ dependencies, dependencyChain, dependencyNames })
+            withDependencies: this._objectMatchedConstructedDependenciesFrom({ dependencyNames, constructedDependencies })
         });
     }
 
-    _constructedDependenciesFrom({dependencies, dependencyChain, dependencyNames}) {
-        var constructedDependencies = select({
-            from: dependencies,
-            to: dependency => Array.isArray(dependency)
-                ? this._constructedDependenciesFrom({ dependencies: dependency, dependencyChain, dependencyNames })
-                : this._constructedDependencyFrom({
-                    dependencyType: dependency.dependencyType,
-                    isConstant: dependency.isConstant,
-                    dependencyChain: dependencyChain.concat(this._dependencyNameFrom({ dependencyType: dependency.dependencyType }))
-                })
-        });
-
+    _objectMatchedConstructedDependenciesFrom({dependencyNames, constructedDependencies}) {
         return zip(dependencyNames, constructedDependencies, (name, constructedDependency) => {
             var isObjectMatching = Array.isArray(name) && Array.isArray(constructedDependency);
             return isObjectMatching
@@ -70,6 +60,19 @@ export class Ioc {
                     return { [name]: constructedDependency };
                 })
                 : constructedDependency;
+        });
+    }
+
+    _constructedDependenciesFrom({dependencies, dependencyChain}) {
+        return select({
+            from: dependencies,
+            to: dependency => Array.isArray(dependency)
+                ? this._constructedDependenciesFrom({ dependencies: dependency, dependencyChain })
+                : this._constructedDependencyFrom({
+                    dependencyType: dependency.dependencyType,
+                    isConstant: dependency.isConstant,
+                    dependencyChain: dependencyChain.concat(this._dependencyNameFrom({ dependencyType: dependency.dependencyType }))
+                })
         });
     }
 

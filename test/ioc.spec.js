@@ -43,6 +43,30 @@ describe("Dependency Injector", () => {
             Dependency2 = function () {
                 this.prop1 = "success2";
             };
+            ManualDepImpl = function ({dependency1, dependency2}) {
+                this.prop1 = dependency1.prop1;
+                this.prop2 = dependency2.prop1;
+            };
+            ManualDepImpl.prototype.dependencies = [["dependency1", "dependency2"]];
+            ioc.bind("dependency1", { toConstructor: Dependency1 });
+            ioc.bind("dependency2", { toConstructor: Dependency2 });
+        
+            //Act
+            var result = ioc.get(ManualDepImpl);
+
+            //Assert
+            expect(result.prop1).to.equal("success1");
+            expect(result.prop2).to.equal("success2");
+        });
+        
+        it("should support shallow ES6 object matching with other dependencies", () => {
+            //Arrange
+            Dependency1 = function () {
+                this.prop1 = "success1";
+            };
+            Dependency2 = function () {
+                this.prop1 = "success2";
+            };
             ManualDepImpl = function (dependency0, {dependency1, dependency2}, dependency3) {
                 this.prop0 = dependency0;
                 this.prop1 = dependency1.prop1;
