@@ -15,8 +15,11 @@ export class Ioc {
 
         if (isBindingValid) {
             var useConstructor = bind.toConstructor || typeof (bind.to) == 'function';
-            var binding = { dependencyName };
-            binding[useConstructor ? 'construct' : 'constant'] = bind.to || (useConstructor ? bind.toConstructor : bind.toConstant);
+            var binding = {
+                dependencyName,
+                dependencyType: bind.to || (useConstructor ? bind.toConstructor : bind.toConstant),
+                isConstant: !useConstructor
+            };
             this._registeredDependencies.push(binding);
         }
         else
@@ -40,22 +43,8 @@ export class Ioc {
         }
 
         var dependencyNames = this._getDependencyNamesFrom(dependencyType);
-        var dependencyFromName = dependencyName => {
-            var dependency = this._dependencyFrom({ dependencyName });
-            return {
-                dependencyType: dependency.construct || dependency.constant,
-                isConstant: Boolean(dependency.constant),
-                dependencyName
-            };
-        };
-        var dependenciesFromNames = dependencyNames => select({
-            from: dependencyNames,
-            to: dependencyName => Array.isArray(dependencyName)
-                ? dependenciesFromNames(dependencyName)
-                : dependencyFromName(dependencyName)
-        });
 
-        var dependencies = dependenciesFromNames(dependencyNames);
+        var dependencies = this._dependenciesFromNames(dependencyNames);
 
         var constructedDependenciesFrom = dependencies => select({
             from: dependencies,
@@ -80,6 +69,15 @@ export class Ioc {
         return this._createInjectedInstanceOf({
             dependencyType,
             withDependencies: constructedDependencies
+        });
+    }
+
+    _dependenciesFromNames(dependencyNames) {
+        return select({
+            from: dependencyNames,
+            to: dependencyName => Array.isArray(dependencyName)
+                ? this._dependenciesFromNames(dependencyName)
+                : this._dependencyFrom({ dependencyName })
         });
     }
 
@@ -154,7 +152,7 @@ export class Ioc {
     _dependencyNameFrom(dependencyType) {
         return (first({
             from: this._registeredDependencies,
-            matching: binding => binding.construct == dependencyType
+            matching: binding => binding.dependencyType == dependencyType
         }) || { dependencyName: this._getUnNamedDependencyStringFrom(dependencyType) }).dependencyName;
     }
 
