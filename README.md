@@ -15,30 +15,6 @@ Here is some example usage from the unit tests:
     beforeEach(() => ioc = new Ioc());
     ...
     
-    it("should support nested dependencies recursively", () => {
-        //Arrange
-        Dependency1 = function () {
-            this.prop1 = "success1";
-        };
-        Dependency2 = function () {
-            this.prop1 = "success2";
-        };
-        Implementation = function (dependency1, dependency2) {
-            this.prop1 = dependency1.prop1;
-            this.prop2 = dependency2.prop1;
-        };
-        Implementation2 = function (impl) {
-            this.success = impl.prop1;
-        };
-        ioc.bind("impl", { toConstructor: Implementation });
-        ioc.bind("dependency1", { toConstructor: Dependency1 });
-        ioc.bind("dependency2", { toConstructor: Dependency2 });
-    
-        //Act
-        //Assert
-        expect(ioc.get(Implementation2).success).to.equal("success1");
-    });
-    
     it("should inject dependencies into classes", () => {
         //Arrange
         Dependency1 = function () {
@@ -63,6 +39,60 @@ Here is some example usage from the unit tests:
         //Assert
         expect(impl.prop1).to.equal("success1");
         expect(impl.prop2).to.equal("success2");
+    });
+    
+    it("should support nested dependencies recursively", () => {
+        //Arrange
+        Dependency1 = function () {
+            this.prop1 = "success1";
+        };
+        Dependency2 = function () {
+            this.prop1 = "success2";
+        };
+        Implementation = function (dependency1, dependency2) {
+            this.prop1 = dependency1.prop1;
+            this.prop2 = dependency2.prop1;
+        };
+        Implementation2 = function (impl) {
+            this.success = impl.prop1;
+        };
+        ioc.bind("impl", { toConstructor: Implementation });
+        ioc.bind("dependency1", { toConstructor: Dependency1 });
+        ioc.bind("dependency2", { toConstructor: Dependency2 });
+    
+        //Act
+        //Assert
+        expect(ioc.get(Implementation2).success).to.equal("success1");
+    });
+    
+    it("should support shallow ES6 object matching", () => {
+        //Arrange
+        Dependency1 = function () {
+            this.prop1 = "success1";
+        };
+        Dependency2 = function () {
+            this.prop1 = "success2";
+        };
+        ManualDepImpl = function (dependency0, {dependency1, dependency2}, dependency3) {
+            this.prop0 = dependency0;
+            this.prop1 = dependency1.prop1;
+            this.prop2 = dependency2.prop1;
+            this.prop3 = dependency3;
+        };
+        ManualDepImpl.prototype.dependencies = ["dependency0", ["dependency1", "dependency2"], "dependency3"];
+        ioc.bind("dependency0", { toConstant: "success0" });
+        ioc.bind("dependency1", { toConstructor: Dependency1 });
+        ioc.bind("dependency2", { toConstructor: Dependency2 });
+        ioc.bind("dependency3", { toConstant: "success3" });
+    
+        //Act
+        var result = ioc.get(ManualDepImpl);
+
+        //Assert
+        expect(result.prop0).to.equal("success0");
+        expect(result.prop1).to.equal("success1");
+        expect(result.prop2).to.equal("success2");
+        expect(result.prop3).to.equal("success3");
     });
     
     it("should support minification via declaring dependencies in prototype.dependencies property", () => {
