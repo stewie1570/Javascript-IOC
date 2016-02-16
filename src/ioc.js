@@ -27,7 +27,7 @@ export class Ioc {
     }
 
     get(dependencyType, dependencyChain) {
-        dependencyChain = dependencyChain || [this._dependencyNameFrom(dependencyType)];
+        dependencyChain = dependencyChain || [this._dependencyNameFrom({ dependencyType })];
         var firstRepeatedDependency = this._firstRepeatedDependencyIn({ dependencyChain });
 
         if (firstRepeatedDependency) {
@@ -42,22 +42,11 @@ export class Ioc {
             throw new Error(`Circular dependency detected in: ${highlightedDependencyChain.join(' <- ') }.`);
         }
 
-        var dependencyNames = this._getDependencyNamesFrom(dependencyType);
+        var dependencyNames = this._getDependencyNamesFrom({ dependencyType });
 
-        var dependencies = this._dependenciesFromNames(dependencyNames);
+        var dependencies = this._dependenciesFromNames({ dependencyNames });
 
-        var constructedDependenciesFrom = dependencies => select({
-            from: dependencies,
-            to: dependency => Array.isArray(dependency)
-                ? constructedDependenciesFrom(dependency)
-                : this._constructedDependencyFrom({
-                    dependencyType: dependency.dependencyType,
-                    isConstant: dependency.isConstant,
-                    dependencyChain: dependencyChain.concat(this._dependencyNameFrom(dependency.dependencyType))
-                })
-        });
-
-        var constructedDependencies = zip(dependencyNames, constructedDependenciesFrom(dependencies), (name, constructedDependency) => {
+        var constructedDependencies = zip(dependencyNames, this._constructedDependenciesFrom({ dependencies, dependencyChain }), (name, constructedDependency) => {
             var isObjectMatching = Array.isArray(name) && Array.isArray(constructedDependency);
             return isObjectMatching
                 ? zipToObject(name, constructedDependency, (name, constructedDependency) => {
@@ -72,11 +61,24 @@ export class Ioc {
         });
     }
 
-    _dependenciesFromNames(dependencyNames) {
+    _constructedDependenciesFrom({dependencies, dependencyChain}) {
+        return select({
+            from: dependencies,
+            to: dependency => Array.isArray(dependency)
+                ? this._constructedDependenciesFrom({ dependencies: dependency, dependencyChain })
+                : this._constructedDependencyFrom({
+                    dependencyType: dependency.dependencyType,
+                    isConstant: dependency.isConstant,
+                    dependencyChain: dependencyChain.concat(this._dependencyNameFrom({ dependencyType: dependency.dependencyType }))
+                })
+        });
+    }
+
+    _dependenciesFromNames({dependencyNames}) {
         return select({
             from: dependencyNames,
             to: dependencyName => Array.isArray(dependencyName)
-                ? this._dependenciesFromNames(dependencyName)
+                ? this._dependenciesFromNames({ dependencyNames: dependencyName })
                 : this._dependencyFrom({ dependencyName })
         });
     }
@@ -110,7 +112,7 @@ export class Ioc {
         return dependency;
     }
 
-    _getUnNamedDependencyStringFrom(dependencyType) {
+    _getUnNamedDependencyStringFrom({dependencyType}) {
         var code = dependencyType
             .toString()
             .replace(/\s/g, '');
@@ -118,7 +120,7 @@ export class Ioc {
         return code.substr(0, code.indexOf(")") + 1);
     }
 
-    _getArgNamesFrom(dependencyType) {
+    _getArgNamesFrom({dependencyType}) {
         var code = dependencyType
             .toString()
             .replace(/\s/g, '');
@@ -134,8 +136,8 @@ export class Ioc {
         }
     }
 
-    _getDependencyNamesFrom(dependencyType) {
-        var args = this._getArgNamesFrom(dependencyType);
+    _getDependencyNamesFrom({dependencyType}) {
+        var args = this._getArgNamesFrom({ dependencyType });
         return typeof (dependencyType.prototype) === "undefined"
             || typeof (dependencyType.prototype.dependencies) === "undefined"
             ? args
@@ -143,17 +145,17 @@ export class Ioc {
     }
 
     _constructedDependencyFrom({dependencyType, dependencyChain, isConstant}) {
-        if (this._getDependencyNamesFrom(dependencyType).length > 0)
+        if (this._getDependencyNamesFrom({ dependencyType }).length > 0)
             return this.get(dependencyType, dependencyChain);
         else
             return typeof (dependencyType) == "function" && !isConstant ? new dependencyType() : dependencyType;
     }
 
-    _dependencyNameFrom(dependencyType) {
+    _dependencyNameFrom({dependencyType}) {
         return (first({
             from: this._registeredDependencies,
             matching: binding => binding.dependencyType == dependencyType
-        }) || { dependencyName: this._getUnNamedDependencyStringFrom(dependencyType) }).dependencyName;
+        }) || { dependencyName: this._getUnNamedDependencyStringFrom({ dependencyType }) }).dependencyName;
     }
 
     _createInjectedInstanceOf({dependencyType, withDependencies}) {
