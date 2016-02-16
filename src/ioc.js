@@ -1,4 +1,4 @@
-import { select, first, count, sum } from './array-helpers';
+import { select, first, count, sum } from './utilities/array-helpers';
 import { zip, zipToObject } from './utilities';
 
 export class Ioc {
