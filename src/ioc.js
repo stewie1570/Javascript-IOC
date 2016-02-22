@@ -7,17 +7,17 @@ export class Ioc {
         this._registeredDependencies = [];
     }
 
-    bind(dependencyName, bind) {
+    bind(dependencyName, {to, toConstructor, toConstant}) {
         var isBindingValid = sum(select({
-            from: [bind.to, bind.toConstructor, bind.toConstant],
+            from: [to, toConstructor, toConstant],
             to: bindingType => bindingType ? 1 : 0
         })) === 1;
 
         if (isBindingValid) {
-            var useConstructor = bind.toConstructor || typeof (bind.to) == 'function';
+            var useConstructor = toConstructor || typeof (to) == 'function';
             var binding = {
                 dependencyName,
-                dependencyType: bind.to || (useConstructor ? bind.toConstructor : bind.toConstant),
+                dependencyType: to || (useConstructor ? toConstructor : toConstant),
                 isConstant: !useConstructor
             };
             this._registeredDependencies.push(binding);
