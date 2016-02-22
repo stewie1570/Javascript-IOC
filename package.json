@@ -32,7 +32,7 @@
     "karma-spec-reporter": "0.0.20",
     "karma-webpack": "^1.7.0",
     "mocha": "^2.3.3",
-    "phantomjs": "^1.9.18",
+    "phantomjs": "^1.9.19",
     "sinon": "^1.17.1",
     "sinon-chai": "^2.8.0",
     "webpack": "^1.12.2"
