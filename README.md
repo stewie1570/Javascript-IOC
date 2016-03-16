@@ -7,7 +7,9 @@ A simple JavaScript IOC that ties constructor arguments (dependencies) to variab
 
 This library is small and has no dependencies on any other package. This library is framework agnostic and is not intended to be used as a service locator. Ideally you'll organize and define your dependency bindings in the bootstrapping of your application and then call the ioc.get method from a single location in your code that gives your chosen framework the constructed object. This can help give your application a more decoupled design. You could even decouple your app from the framework ;) This library has a very simple API that could be replaced by another IOC later if you wish.
 
-Here is some example usage from the unit tests:
+Here is some example usage in a small project: [Bowling Kata](https://github.com/stewie1570/bowling-kata).
+
+Also, here is some example usage from the unit tests:
 
     import { Ioc } from 'javascript-ioc';
     
