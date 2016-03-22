@@ -207,7 +207,7 @@ describe("Dependency Injector", () => {
             expect(impl.prop2).to.equal("success2");
         });
 
-        it("should support binding to constants, not just constructors", () => {
+        it("should support binding to constant", () => {
             //Arrange
             ioc.bind("constTest", { toConstant: "constant success" });
             Implementation = function (constTest) { this.prop1 = constTest; };
@@ -215,6 +215,16 @@ describe("Dependency Injector", () => {
             //Act
             //Assert
             expect(ioc.get(Implementation).prop1).to.equal("constant success");
+        });
+        
+        it("should support binding to method", () => {
+            //Arrange
+            ioc.bind("methodTest", { toMethod: () => "method success" });
+            Implementation = function (methodTest) { this.prop1 = methodTest; };
+
+            //Act
+            //Assert
+            expect(ioc.get(Implementation).prop1).to.equal("method success");
         });
         
         it("should support binding to functions as constants", () => {
@@ -260,7 +270,7 @@ describe("Dependency Injector", () => {
             }
 
             //Assert
-            expect(exceptionMessage).to.equal('Unable to bind "dependency". Binding must contain one (and only one) of the following properties: "to", "toConstructor" or "toConstant".');
+            expect(exceptionMessage).to.equal('Unable to bind "dependency". Binding must contain one (and only one) of the following properties: "to", "toConstructor", "toMethod" or "toConstant".');
         });
 
         it("should throw exception for invalid binding when auto binding and manual binding at the same time", () => {
@@ -276,7 +286,7 @@ describe("Dependency Injector", () => {
             }
 
             //Assert
-            expect(exceptionMessage).to.equal('Unable to bind "dependency". Binding must contain one (and only one) of the following properties: "to", "toConstructor" or "toConstant".');
+            expect(exceptionMessage).to.equal('Unable to bind "dependency". Binding must contain one (and only one) of the following properties: "to", "toConstructor", "toMethod" or "toConstant".');
         });
 
         it("should throw exception for invalid binding when doing multiple manual binding types at the same time", () => {
@@ -292,7 +302,7 @@ describe("Dependency Injector", () => {
             }
 
             //Assert
-            expect(exceptionMessage).to.equal('Unable to bind "dependency". Binding must contain one (and only one) of the following properties: "to", "toConstructor" or "toConstant".');
+            expect(exceptionMessage).to.equal('Unable to bind "dependency". Binding must contain one (and only one) of the following properties: "to", "toConstructor", "toMethod" or "toConstant".');
         });
 
         it("should throw when circular dependency is detected", () => {
