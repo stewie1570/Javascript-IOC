@@ -237,39 +237,47 @@ describe("Dependency Injector", () => {
             expect(ioc.get(Implementation).prop1).to.equal("constant success");
         });
     });
-    
+
     describe("Dependency Graph", () => {
         it("should be a recursive object describing the dependency tree for the given type", () => {
             //Arrange
-            Dependency1 = function () {
-                this.prop1 = "success1";
-            };
-            Dependency2 = function () {
-                this.prop1 = "success2";
-            };
-            Implementation = function (dependency1, dependency2) {
-                this.prop1 = dependency1.prop1;
-                this.prop2 = dependency2.prop1;
-            };
-            Implementation2 = function (impl) {
-                this.success = impl.prop1;
-            };
-            ioc.bind("impl", { toConstructor: Implementation });
-            ioc.bind("dependency1", { toConstructor: Dependency1 });
-            ioc.bind("dependency2", { toConstructor: Dependency2 });
+            class ScoreBoard { }
+            class Parser { }
+            class Provider {
+                constructor({userInput, parser, scorer}) {
+                    this.userInput = userInput;
+                    this.parser = parser;
+                    this.scorer = scorer;
+                }
+            }
+            Provider.prototype.dependencies = [["userInput", "parser", "scorer"]];
+            class Controller {
+                constructor(view, provider) {
+                    this.view = view;
+                    this.provider = provider;
+                }
+            }
+
+            ioc.bind("view", { to: {} });
+            ioc.bind("scorer", { to: ScoreBoard });
+            ioc.bind("parser", { to: Parser });
+            ioc.bind("userInput", { toMethod: () => "user input" });
+            ioc.bind("provider", { to: Provider });
         
             //Act
-            var dependencyGraph = ioc.getDependencyGraphOf(Implementation2);
+            var dependencyGraph = ioc.getDependencyGraphOf(Controller);
             
             //Assert
             expect(dependencyGraph).to.deep.equal({
-                name: "function(impl)",
+                name: "Controller(view, provider)",
                 dependencies: [
+                    { name: "view", dependencies: [] },
                     {
-                        name: "impl",
+                        name: "provider",
                         dependencies: [
-                            { name: "dependency1", dependencies: [] },
-                            { name: "dependency2", dependencies: [] },
+                            { name: "userInput", dependencies: [] },
+                            { name: "parser", dependencies: [] },
+                            { name: "scorer", dependencies: [] }
                         ]
                     }
                 ]
@@ -366,7 +374,7 @@ describe("Dependency Injector", () => {
             catch (error) { errorMessage = error.message; }
 
             //Assert
-            expect(errorMessage).to.equal("Circular dependency detected in: function(Implementation) <- **Implementation** <- dependency2 <- dependency1 <- **Implementation**.")
+            expect(errorMessage).to.equal("Circular dependency detected in: function (Implementation) <- **Implementation** <- dependency2 <- dependency1 <- **Implementation**.")
         });
 
     });

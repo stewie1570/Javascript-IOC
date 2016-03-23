@@ -54,9 +54,9 @@ export class Ioc {
     }
     
     getDependencyGraphOf(dependencyType){
-        var bindingsForDependencies = this._bindingsFromNames({
-            dependencyNames: this._getDependencyNamesFrom({dependencyType})
-        });
+        var dependencyNames = this._getDependencyNamesFrom({dependencyType});
+        dependencyNames = Array.isArray(dependencyNames[0]) ? dependencyNames[0] : dependencyNames;
+        var bindingsForDependencies = this._bindingsFromNames({ dependencyNames });
         
         return {
             name: this._dependencyNameFrom({dependencyType}),
@@ -129,11 +129,16 @@ export class Ioc {
     }
 
     _getUnNamedDependencyStringFrom({dependencyType}) {
-        var code = dependencyType
-            .toString()
-            .replace(/\s/g, '');
-
-        return code.substr(0, code.indexOf(")") + 1);
+        var code = dependencyType.toString();
+        var dependencyStringFromUnNamedFunction = code => code.substr(0, code.indexOf(")") + 1);
+        var dependencyStringFromNamedFunction = code => {
+            var str = code.replace(/^function\s/, '');
+            return str.substr(0, str.indexOf(")") + 1).replace(/\([a-zA-Z0-9_]*\)$/, '()');
+        };
+        
+        return code.search(/^function\s?\(/) >= 0
+            ? dependencyStringFromUnNamedFunction(code)
+            : dependencyStringFromNamedFunction(code);
     }
 
     _getArgNamesFrom({dependencyType}) {
