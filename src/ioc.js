@@ -133,7 +133,7 @@ export class Ioc {
         var dependencyStringFromUnNamedFunction = code => code.substr(0, code.indexOf(")") + 1);
         var dependencyStringFromNamedFunction = code => {
             var str = code.replace(/^function\s/, '');
-            return str.substr(0, str.indexOf(")") + 1).replace(/\([a-zA-Z0-9_]*\)$/, '()');
+            return str.substr(0, str.indexOf(")") + 1).replace(/\([a-zA-Z0-9_,*\s*]*\)$/, '');
         };
         
         return code.search(/^function\s?\(/) >= 0

@@ -269,7 +269,7 @@ describe("Dependency Injector", () => {
             
             //Assert
             expect(dependencyGraph).to.deep.equal({
-                name: "Controller(view, provider)",
+                name: "Controller",
                 dependencies: [
                     { name: "view", dependencies: [] },
                     {
