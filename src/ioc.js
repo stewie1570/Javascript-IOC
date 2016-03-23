@@ -52,6 +52,20 @@ export class Ioc {
             withDependencies: this._objectMatchedConstructedDependenciesFrom({ dependencyNames, constructedDependencies })
         });
     }
+    
+    getDependencyGraphOf(dependencyType){
+        var bindingsForDependencies = this._bindingsFromNames({
+            dependencyNames: this._getDependencyNamesFrom({dependencyType})
+        });
+        
+        return {
+            name: this._dependencyNameFrom({dependencyType}),
+            dependencies: select({
+                from: bindingsForDependencies,
+                to: binding => this.getDependencyGraphOf(binding.dependencyType)
+            }) 
+        };
+    }
 
     _objectMatchedConstructedDependenciesFrom({dependencyNames, constructedDependencies}) {
         return zip(dependencyNames, constructedDependencies, (name, constructedDependency) => {

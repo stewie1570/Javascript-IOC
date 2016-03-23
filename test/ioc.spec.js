@@ -34,7 +34,7 @@ describe("Dependency Injector", () => {
             expect(result.prop1).to.equal("success1");
             expect(result.prop2).to.equal("success2");
         });
-        
+
         it("should support shallow ES6 object matching", () => {
             //Arrange
             Dependency1 = function () {
@@ -58,7 +58,7 @@ describe("Dependency Injector", () => {
             expect(result.prop1).to.equal("success1");
             expect(result.prop2).to.equal("success2");
         });
-        
+
         it("should support shallow ES6 object matching with other dependencies", () => {
             //Arrange
             Dependency1 = function () {
@@ -216,7 +216,7 @@ describe("Dependency Injector", () => {
             //Assert
             expect(ioc.get(Implementation).prop1).to.equal("constant success");
         });
-        
+
         it("should support binding to method", () => {
             //Arrange
             ioc.bind("methodTest", { toMethod: () => "method success" });
@@ -226,7 +226,7 @@ describe("Dependency Injector", () => {
             //Assert
             expect(ioc.get(Implementation).prop1).to.equal("method success");
         });
-        
+
         it("should support binding to functions as constants", () => {
             //Arrange
             ioc.bind("provider", { toConstant: () => "constant success" });
@@ -235,6 +235,45 @@ describe("Dependency Injector", () => {
             //Act
             //Assert
             expect(ioc.get(Implementation).prop1).to.equal("constant success");
+        });
+    });
+    
+    describe("Dependency Graph", () => {
+        it("should be a recursive object describing the dependency tree for the given type", () => {
+            //Arrange
+            Dependency1 = function () {
+                this.prop1 = "success1";
+            };
+            Dependency2 = function () {
+                this.prop1 = "success2";
+            };
+            Implementation = function (dependency1, dependency2) {
+                this.prop1 = dependency1.prop1;
+                this.prop2 = dependency2.prop1;
+            };
+            Implementation2 = function (impl) {
+                this.success = impl.prop1;
+            };
+            ioc.bind("impl", { toConstructor: Implementation });
+            ioc.bind("dependency1", { toConstructor: Dependency1 });
+            ioc.bind("dependency2", { toConstructor: Dependency2 });
+        
+            //Act
+            var dependencyGraph = ioc.getDependencyGraphOf(Implementation2);
+            
+            //Assert
+            expect(dependencyGraph).to.deep.equal({
+                name: "function(impl)",
+                dependencies: [
+                    {
+                        name: "impl",
+                        dependencies: [
+                            { name: "dependency1", dependencies: [] },
+                            { name: "dependency2", dependencies: [] },
+                        ]
+                    }
+                ]
+            });
         });
     });
 
