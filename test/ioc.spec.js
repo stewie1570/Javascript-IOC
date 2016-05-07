@@ -11,6 +11,14 @@ describe("Dependency Injector", () => {
     beforeEach(() => ioc = new Ioc());
 
     describe("Binding", () => {
+        it("should support creating instances that have no dependencies", () => {
+           Dependency1 = function (){
+               this.prop = "success";
+           }
+           
+           expect(ioc.get(Dependency1).prop).to.equal("success");
+        });
+        
         it("should support minification via declaring dependencies in prototype.dependencies property", () => {
             //Arrange
             Dependency1 = function () {
