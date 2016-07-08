@@ -246,13 +246,7 @@ describe("Dependency Injector", () => {
         });
 
         it("should return original JSON object when getting injected instance of a JSON object", () => {
-            var origObject = {
-                test: "some value",
-                nestedTest: {
-                    nestedProp: "some other value"
-                }
-            };
-
+            var origObject = { test: "some value" };
             expect(ioc.get(origObject)).to.equal(origObject);
         })
     });
