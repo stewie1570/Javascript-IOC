@@ -185,8 +185,8 @@ export class Ioc {
     }
 
     _createInjectedInstanceOf({dependencyType, withDependencies}) {
-        var args = [null].concat(withDependencies);
-        var FactoryFunction = dependencyType.bind.apply(dependencyType, args);
-        return new FactoryFunction();
+        return typeof(dependencyType) === "function"
+            ? new (dependencyType.bind.apply(dependencyType, [null].concat(withDependencies)))()
+            : dependencyType;
     }
 };

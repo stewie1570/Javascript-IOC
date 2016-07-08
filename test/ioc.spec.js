@@ -244,6 +244,17 @@ describe("Dependency Injector", () => {
             //Assert
             expect(ioc.get(Implementation).prop1).to.equal("constant success");
         });
+
+        it("should return original JSON object when getting injected instance of a JSON object", () => {
+            var origObject = {
+                test: "some value",
+                nestedTest: {
+                    nestedProp: "some other value"
+                }
+            };
+
+            expect(ioc.get(origObject)).to.equal(origObject);
+        })
     });
 
     describe("Dependency Graph", () => {
