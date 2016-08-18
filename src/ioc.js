@@ -71,9 +71,7 @@ export class Ioc {
         return zip(dependencyNames, constructedDependencies, (name, constructedDependency) => {
             var isObjectMatching = Array.isArray(name) && Array.isArray(constructedDependency);
             return isObjectMatching
-                ? zipToObject(name, constructedDependency, (name, constructedDependency) => {
-                    return { [name]: constructedDependency };
-                })
+                ? zipToObject(name, constructedDependency, (name, constructedDependency) => ({ [name]: constructedDependency }))
                 : constructedDependency;
         });
     }
