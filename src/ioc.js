@@ -45,16 +45,16 @@ export class Ioc {
             throw new Error(`Circular dependency detected in: ${highlightedDependencyChain.join(' <- ')}.`);
         }
 
-        var dependencyNames = this._getDependencyNamesFrom({
-            dependencyType: typeof (dependencyType) === "string"
-                ? this._dependencyTypeFromBindingViaDependencyName({ dependencyName: dependencyType })
-                : dependencyType
-        });
+        var verifiedDependencyType = typeof (dependencyType) === "string"
+            ? this._dependencyTypeFromBindingViaDependencyName({ dependencyName: dependencyType })
+            : dependencyType;
+
+        var dependencyNames = this._getDependencyNamesFrom({ dependencyType: verifiedDependencyType });
         var bindings = this._bindingsFromNames({ dependencyNames });
         var constructedDependencies = this._constructedDependenciesFrom({ bindings, dependencyChain });
 
         return this._createInjectedInstanceOf({
-            dependencyType,
+            dependencyType: verifiedDependencyType,
             withDependencies: this._objectMatchedConstructedDependenciesFrom({ dependencyNames, constructedDependencies })
         });
     }
@@ -202,8 +202,6 @@ export class Ioc {
     _createInjectedInstanceOf({dependencyType, withDependencies}) {
         var constructedFrom = ({dependencyType}) => new (dependencyType.bind.apply(dependencyType, [null].concat(withDependencies)))();
 
-        return typeof (dependencyType) === "function" ? constructedFrom({ dependencyType })
-            : typeof (dependencyType) === "string" ? constructedFrom({ dependencyType: this._dependencyTypeFromBindingViaDependencyName({ dependencyName: dependencyType }) })
-                : dependencyType;
+        return typeof (dependencyType) === "function" ? constructedFrom({ dependencyType }) : dependencyType;
     }
 };

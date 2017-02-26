@@ -29,6 +29,12 @@ describe("Dependency Injector", () => {
             expect(ioc.get("DependencyName").prop).to.equal("success");
         });
 
+        it("should get JSON object by contract name", () => {
+            ioc.bind("DependencyName", { to: { test: "it worked" } });
+
+            expect(ioc.get("DependencyName").test).to.equal("it worked");
+        });
+
         it("should support minification via declaring dependencies in prototype.dependencies property", () => {
             //Arrange
             Dependency1 = function () {
