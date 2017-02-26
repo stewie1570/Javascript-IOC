@@ -42,6 +42,16 @@ Also, here is some example usage from the unit tests:
         expect(impl.prop1).to.equal("success1");
         expect(impl.prop2).to.equal("success2");
     });
+
+    it("should get instance by contract name", () => {
+        Dependency1 = function () {
+            this.prop = "success";
+        }
+
+        ioc.bind("DependencyName", { toConstructor: Dependency1 });
+
+        expect(ioc.get("DependencyName").prop).to.equal("success");
+    });
     
     it("should support nested dependencies recursively", () => {
         //Arrange

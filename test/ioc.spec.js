@@ -1,4 +1,4 @@
-import { Ioc } from  '../src/ioc';
+import { Ioc } from '../src/ioc'
 
 describe("Dependency Injector", () => {
     var Dependency1,
@@ -12,13 +12,23 @@ describe("Dependency Injector", () => {
 
     describe("Binding", () => {
         it("should support creating instances that have no dependencies", () => {
-           Dependency1 = function (){
-               this.prop = "success";
-           }
-           
-           expect(ioc.get(Dependency1).prop).to.equal("success");
+            Dependency1 = function () {
+                this.prop = "success";
+            }
+
+            expect(ioc.get(Dependency1).prop).to.equal("success");
         });
-        
+
+        it("should get instance by contract name", () => {
+            Dependency1 = function () {
+                this.prop = "success";
+            }
+
+            ioc.bind("DependencyName", { toConstructor: Dependency1 });
+
+            expect(ioc.get("DependencyName").prop).to.equal("success");
+        });
+
         it("should support minification via declaring dependencies in prototype.dependencies property", () => {
             //Arrange
             Dependency1 = function () {
@@ -34,7 +44,7 @@ describe("Dependency Injector", () => {
             ManualDepImpl.prototype.dependencies = ["dependency1", "dependency2"];
             ioc.bind("dependency1", { toConstructor: Dependency1 });
             ioc.bind("dependency2", { toConstructor: Dependency2 });
-        
+
             //Act
             var result = ioc.get(ManualDepImpl);
 
@@ -58,7 +68,7 @@ describe("Dependency Injector", () => {
             ManualDepImpl.prototype.dependencies = [["dependency1", "dependency2"]];
             ioc.bind("dependency1", { toConstructor: Dependency1 });
             ioc.bind("dependency2", { toConstructor: Dependency2 });
-        
+
             //Act
             var result = ioc.get(ManualDepImpl);
 
@@ -86,7 +96,7 @@ describe("Dependency Injector", () => {
             ioc.bind("dependency1", { toConstructor: Dependency1 });
             ioc.bind("dependency2", { toConstructor: Dependency2 });
             ioc.bind("dependency3", { toConstant: "success3" });
-        
+
             //Act
             var result = ioc.get(ManualDepImpl);
 
@@ -132,10 +142,35 @@ describe("Dependency Injector", () => {
             ioc.bind("impl", { toConstructor: Implementation });
             ioc.bind("dependency1", { toConstructor: Dependency1 });
             ioc.bind("dependency2", { toConstructor: Dependency2 });
-        
+
             //Act
             //Assert
             expect(ioc.get(Implementation2).success).to.equal("success1");
+        });
+
+        it("should get instance via contract name from binding that requires nested dependencies", () => {
+            //Arrange
+            Dependency1 = function () {
+                this.prop1 = "success1";
+            };
+            Dependency2 = function () {
+                this.prop1 = "success2";
+            };
+            Implementation = function (dependency1, dependency2) {
+                this.prop1 = dependency1.prop1;
+                this.prop2 = dependency2.prop1;
+            };
+            Implementation2 = function (impl) {
+                this.success = impl.prop1;
+            };
+            ioc.bind("impl", { toConstructor: Implementation });
+            ioc.bind("dependency1", { toConstructor: Dependency1 });
+            ioc.bind("dependency2", { toConstructor: Dependency2 });
+            ioc.bind("TheImplementation", { toConstructor: Implementation2 });
+
+            //Act
+            //Assert
+            expect(ioc.get("TheImplementation").success).to.equal("success1");
         });
 
         it("should inject dependencies into classes", () => {
@@ -155,7 +190,7 @@ describe("Dependency Injector", () => {
                     this.prop2 = dependency2.prop1;
                 }
             }
-        
+
             //Act
             var impl = ioc.get(ClassImpl);
 
@@ -184,7 +219,7 @@ describe("Dependency Injector", () => {
 
             ioc.bind("dependency1", { toConstructor: Dependency1 });
             ioc.bind("dep", { to: Dep });
-        
+
             //Act
             var impl = ioc.get(ClassImpl);
 
@@ -206,7 +241,7 @@ describe("Dependency Injector", () => {
             };
             ioc.bind("dependency1", { toConstructor: Dependency1 });
             ioc.bind("dependency2", { toConstructor: Dependency2 });
-        
+
             //Act
             var impl = ioc.get(Implementation);
 
@@ -276,10 +311,10 @@ describe("Dependency Injector", () => {
             ioc.bind("parser", { to: Parser });
             ioc.bind("userInput", { toMethod: () => "user input" });
             ioc.bind("provider", { to: Provider });
-        
+
             //Act
             var dependencyGraph = ioc.getDependencyGraphOf(Controller);
-            
+
             //Assert
             expect(dependencyGraph).to.deep.equal({
                 name: "Controller",
@@ -320,7 +355,7 @@ describe("Dependency Injector", () => {
         it("should throw exception for incomplete bindings", () => {
             //Arrange
             var exceptionMessage = '';
-            
+
             //Act
             try {
                 ioc.bind("dependency", { unknownProp: "with some value" });
@@ -336,7 +371,7 @@ describe("Dependency Injector", () => {
         it("should throw exception for invalid binding when auto binding and manual binding at the same time", () => {
             //Arrange
             var exceptionMessage = '';
-            
+
             //Act
             try {
                 ioc.bind("dependency", { to: "some value", toConstant: "some other value" });
@@ -352,7 +387,7 @@ describe("Dependency Injector", () => {
         it("should throw exception for invalid binding when doing multiple manual binding types at the same time", () => {
             //Arrange
             var exceptionMessage = '';
-            
+
             //Act
             try {
                 ioc.bind("dependency", { toConstructor: function () { }, toConstant: "some other value" });
@@ -378,7 +413,7 @@ describe("Dependency Injector", () => {
             ioc.bind("Implementation", { toConstructor: Implementation });
             ioc.bind("dependency1", { toConstructor: Dependency1 });
             ioc.bind("dependency2", { toConstructor: Dependency2 });
-        
+
             //Act
             var errorMessage = "";
             try {
@@ -388,6 +423,46 @@ describe("Dependency Injector", () => {
 
             //Assert
             expect(errorMessage).to.equal("Circular dependency detected in: function (Implementation) <- **Implementation** <- dependency2 <- dependency1 <- **Implementation**.")
+        });
+
+        it("should throw when circular dependency is detected while getting instance via contract name", () => {
+            //Arrange
+            Dependency1 = function (Implementation) {
+            };
+            Dependency2 = function (dependency1) {
+            };
+            Implementation = function (dependency2) {
+            };
+            Implementation2 = function (Implementation) {
+            }
+            ioc.bind("Implementation", { toConstructor: Implementation });
+            ioc.bind("dependency1", { toConstructor: Dependency1 });
+            ioc.bind("dependency2", { toConstructor: Dependency2 });
+            ioc.bind("TheImplementation", { toConstructor: Implementation2 });
+
+            //Act
+            var errorMessage = "";
+            try {
+                var impl = ioc.get("TheImplementation");
+            }
+            catch (error) { errorMessage = error.message; }
+
+            //Assert
+            expect(errorMessage).to.equal("Circular dependency detected in: TheImplementation <- **Implementation** <- dependency2 <- dependency1 <- **Implementation**.")
+        });
+
+        it("should throw \"DependencyName\" has no binding when getting instance by contract name that is not bound", () => {
+            Dependency1 = function () {
+                this.prop = "success";
+            }
+
+            var errorMessage = "";
+            try {
+                ioc.get("DependencyName");
+            }
+            catch (error) { errorMessage = error.message; }
+
+            expect(errorMessage).to.equal("\"DependencyName\" has no dependency binding.");
         });
 
     });

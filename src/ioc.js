@@ -28,7 +28,9 @@ export class Ioc {
     }
 
     get(dependencyType, dependencyChain) {
-        dependencyChain = dependencyChain || [this._dependencyNameFrom({ dependencyType })];
+        dependencyChain = dependencyChain || [
+            typeof (dependencyType) === "string" ? dependencyType : this._dependencyNameFrom({ dependencyType })
+        ];
         var firstRepeatedDependency = this._firstRepeatedDependencyIn({ dependencyChain });
 
         if (firstRepeatedDependency) {
@@ -40,10 +42,14 @@ export class Ioc {
                         : dependencyName
             });
 
-            throw new Error(`Circular dependency detected in: ${highlightedDependencyChain.join(' <- ') }.`);
+            throw new Error(`Circular dependency detected in: ${highlightedDependencyChain.join(' <- ')}.`);
         }
 
-        var dependencyNames = this._getDependencyNamesFrom({ dependencyType });
+        var dependencyNames = this._getDependencyNamesFrom({
+            dependencyType: typeof (dependencyType) === "string"
+                ? this._dependencyTypeFromBindingViaDependencyName({ dependencyName: dependencyType })
+                : dependencyType
+        });
         var bindings = this._bindingsFromNames({ dependencyNames });
         var constructedDependencies = this._constructedDependenciesFrom({ bindings, dependencyChain });
 
@@ -52,18 +58,18 @@ export class Ioc {
             withDependencies: this._objectMatchedConstructedDependenciesFrom({ dependencyNames, constructedDependencies })
         });
     }
-    
-    getDependencyGraphOf(dependencyType){
-        var dependencyNames = this._getDependencyNamesFrom({dependencyType});
+
+    getDependencyGraphOf(dependencyType) {
+        var dependencyNames = this._getDependencyNamesFrom({ dependencyType });
         dependencyNames = Array.isArray(dependencyNames[0]) ? dependencyNames[0] : dependencyNames;
         var bindingsForDependencies = this._bindingsFromNames({ dependencyNames });
-        
+
         return {
-            name: this._dependencyNameFrom({dependencyType}),
+            name: this._dependencyNameFrom({ dependencyType }),
             dependencies: select({
                 from: bindingsForDependencies,
                 to: binding => this.getDependencyGraphOf(binding.dependencyType)
-            }) 
+            })
         };
     }
 
@@ -133,7 +139,7 @@ export class Ioc {
             var str = code.replace(/^function\s/, '');
             return str.substr(0, str.indexOf(")") + 1).replace(/\([a-zA-Z0-9_,*\s*]*\)$/, '');
         };
-        
+
         return code.search(/^function\s?\(/) >= 0
             ? dependencyStringFromUnNamedFunction(code)
             : dependencyStringFromNamedFunction(code);
@@ -182,9 +188,22 @@ export class Ioc {
         }) || { dependencyName: this._getUnNamedDependencyStringFrom({ dependencyType }) }).dependencyName;
     }
 
+    _dependencyTypeFromBindingViaDependencyName({dependencyName}) {
+        var theBinding = first({
+            from: this._bindings,
+            matching: binding => binding.dependencyName === dependencyName
+        });
+
+        if (!theBinding) { throw new Error(`"${dependencyName}" has no dependency binding.`); }
+
+        return theBinding.dependencyType;
+    }
+
     _createInjectedInstanceOf({dependencyType, withDependencies}) {
-        return typeof(dependencyType) === "function"
-            ? new (dependencyType.bind.apply(dependencyType, [null].concat(withDependencies)))()
-            : dependencyType;
+        var constructedFrom = ({dependencyType}) => new (dependencyType.bind.apply(dependencyType, [null].concat(withDependencies)))();
+
+        return typeof (dependencyType) === "function" ? constructedFrom({ dependencyType })
+            : typeof (dependencyType) === "string" ? constructedFrom({ dependencyType: this._dependencyTypeFromBindingViaDependencyName({ dependencyName: dependencyType }) })
+                : dependencyType;
     }
 };
