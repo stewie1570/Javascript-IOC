@@ -1,4 +1,4 @@
-#javascript-ioc
+# javascript-ioc
 
 [![Build](https://api.travis-ci.org/stewie1570/Javascript-IOC.svg)](https://travis-ci.org/stewie1570/Javascript-IOC)
 [![npm version](https://badge.fury.io/js/javascript-ioc.svg)](https://badge.fury.io/js/javascript-ioc)
