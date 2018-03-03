@@ -11,7 +11,7 @@ describe("Utilities: ", () => {
 			var result = zipToObject(array1, array2, (first, second) => { return { [second]: first }; });
 			
 			//Assert
-			expect(result).to.deep.equal({
+			expect(result).toEqual({
 				one: 1,
 				two: 2,
 				three: 3
@@ -27,7 +27,7 @@ describe("Utilities: ", () => {
 			var result = zipToObject(array1, array2, (first, second) => { return { [second]: first }; });
 			
 			//Assert
-			expect(result).to.deep.equal({
+			expect(result).toEqual({
 				one: 1,
 				two: 2
 			});
@@ -42,7 +42,7 @@ describe("Utilities: ", () => {
 			var result = zipToObject(array1, array2, (first, second) => { return { [second]: first }; });
 			
 			//Assert
-			expect(result).to.deep.equal({
+			expect(result).toEqual({
 				one: 1,
 				two: 2
 			});
@@ -59,7 +59,7 @@ describe("Utilities: ", () => {
 			var result = zip(array1, array2, (first, second) => { return { [second]: first }; });
 			
 			//Assert
-			expect(result).to.deep.equal([
+			expect(result).toEqual([
 				{one: 1},
 				{two: 2},
 				{three: 3}
@@ -75,7 +75,7 @@ describe("Utilities: ", () => {
 			var result = zip(array1, array2, (first, second) => { return { [second]: first }; });
 			
 			//Assert
-			expect(result).to.deep.equal([
+			expect(result).toEqual([
 				{one: 1},
 				{two: 2}
 			]);
@@ -90,7 +90,7 @@ describe("Utilities: ", () => {
 			var result = zip(array1, array2, (first, second) => { return { [second]: first }; });
 			
 			//Assert
-			expect(result).to.deep.equal([
+			expect(result).toEqual([
 				{one: 1},
 				{two: 2}
 			]);

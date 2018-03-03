@@ -16,7 +16,7 @@ describe("Dependency Injector", () => {
                 this.prop = "success";
             }
 
-            expect(ioc.get(Dependency1).prop).to.equal("success");
+            expect(ioc.get(Dependency1).prop).toEqual("success");
         });
 
         it("should get instance by contract name", () => {
@@ -26,13 +26,13 @@ describe("Dependency Injector", () => {
 
             ioc.bind("DependencyName", { toConstructor: Dependency1 });
 
-            expect(ioc.get("DependencyName").prop).to.equal("success");
+            expect(ioc.get("DependencyName").prop).toEqual("success");
         });
 
         it("should get JSON object by contract name", () => {
             ioc.bind("DependencyName", { to: { test: "it worked" } });
 
-            expect(ioc.get("DependencyName").test).to.equal("it worked");
+            expect(ioc.get("DependencyName").test).toEqual("it worked");
         });
 
         it("should support minification via declaring dependencies in prototype.dependencies property", () => {
@@ -55,8 +55,8 @@ describe("Dependency Injector", () => {
             var result = ioc.get(ManualDepImpl);
 
             //Assert
-            expect(result.prop1).to.equal("success1");
-            expect(result.prop2).to.equal("success2");
+            expect(result.prop1).toEqual("success1");
+            expect(result.prop2).toEqual("success2");
         });
 
         it("should support shallow ES6 object matching", () => {
@@ -79,8 +79,8 @@ describe("Dependency Injector", () => {
             var result = ioc.get(ManualDepImpl);
 
             //Assert
-            expect(result.prop1).to.equal("success1");
-            expect(result.prop2).to.equal("success2");
+            expect(result.prop1).toEqual("success1");
+            expect(result.prop2).toEqual("success2");
         });
 
         it("should support shallow ES6 object matching with other dependencies", () => {
@@ -107,10 +107,10 @@ describe("Dependency Injector", () => {
             var result = ioc.get(ManualDepImpl);
 
             //Assert
-            expect(result.prop0).to.equal("success0");
-            expect(result.prop1).to.equal("success1");
-            expect(result.prop2).to.equal("success2");
-            expect(result.prop3).to.equal("success3");
+            expect(result.prop0).toEqual("success0");
+            expect(result.prop1).toEqual("success1");
+            expect(result.prop2).toEqual("success2");
+            expect(result.prop3).toEqual("success3");
         });
 
         it("should automatically bind to constructor or bind to constant", () => {
@@ -126,8 +126,8 @@ describe("Dependency Injector", () => {
             var inst = ioc.get(impl);
 
             //Assert
-            expect(inst.testConst.prop).to.equal("constant worked");
-            expect(inst.testConstruct.prop).to.equal("constructor works");
+            expect(inst.testConst.prop).toEqual("constant worked");
+            expect(inst.testConstruct.prop).toEqual("constructor works");
         });
 
         it("should support nested dependencies recursively", () => {
@@ -151,7 +151,7 @@ describe("Dependency Injector", () => {
 
             //Act
             //Assert
-            expect(ioc.get(Implementation2).success).to.equal("success1");
+            expect(ioc.get(Implementation2).success).toEqual("success1");
         });
 
         it("should get instance via contract name from binding that requires nested dependencies", () => {
@@ -176,7 +176,7 @@ describe("Dependency Injector", () => {
 
             //Act
             //Assert
-            expect(ioc.get("TheImplementation").success).to.equal("success1");
+            expect(ioc.get("TheImplementation").success).toEqual("success1");
         });
 
         it("should inject dependencies into classes", () => {
@@ -201,8 +201,8 @@ describe("Dependency Injector", () => {
             var impl = ioc.get(ClassImpl);
 
             //Assert
-            expect(impl.prop1).to.equal("success1");
-            expect(impl.prop2).to.equal("success2");
+            expect(impl.prop1).toEqual("success1");
+            expect(impl.prop2).toEqual("success2");
         });
 
         it("should inject class instance into class", () => {
@@ -230,7 +230,7 @@ describe("Dependency Injector", () => {
             var impl = ioc.get(ClassImpl);
 
             //Assert
-            expect(impl.prop1).to.equal("success1");
+            expect(impl.prop1).toEqual("success1");
         });
 
         it("should inject dependencies by contstructor argument names", () => {
@@ -252,8 +252,8 @@ describe("Dependency Injector", () => {
             var impl = ioc.get(Implementation);
 
             //Assert
-            expect(impl.prop1).to.equal("success1");
-            expect(impl.prop2).to.equal("success2");
+            expect(impl.prop1).toEqual("success1");
+            expect(impl.prop2).toEqual("success2");
         });
 
         it("should support binding to constant", () => {
@@ -263,7 +263,7 @@ describe("Dependency Injector", () => {
 
             //Act
             //Assert
-            expect(ioc.get(Implementation).prop1).to.equal("constant success");
+            expect(ioc.get(Implementation).prop1).toEqual("constant success");
         });
 
         it("should support binding to method", () => {
@@ -273,7 +273,7 @@ describe("Dependency Injector", () => {
 
             //Act
             //Assert
-            expect(ioc.get(Implementation).prop1).to.equal("method success");
+            expect(ioc.get(Implementation).prop1).toEqual("method success");
         });
 
         it("should support binding to functions as constants", () => {
@@ -283,12 +283,12 @@ describe("Dependency Injector", () => {
 
             //Act
             //Assert
-            expect(ioc.get(Implementation).prop1).to.equal("constant success");
+            expect(ioc.get(Implementation).prop1).toEqual("constant success");
         });
 
         it("should return original JSON object when getting injected instance of a JSON object", () => {
             var origObject = { test: "some value" };
-            expect(ioc.get(origObject)).to.equal(origObject);
+            expect(ioc.get(origObject)).toEqual(origObject);
         })
     });
 
@@ -322,7 +322,7 @@ describe("Dependency Injector", () => {
             var dependencyGraph = ioc.getDependencyGraphOf(Controller);
 
             //Assert
-            expect(dependencyGraph).to.deep.equal({
+            expect(dependencyGraph).toEqual({
                 name: "Controller",
                 dependencies: [
                     { name: "view", dependencies: [] },
@@ -355,7 +355,7 @@ describe("Dependency Injector", () => {
             }
 
             //Assert
-            expect(exceptionMessage).to.contain("'unknownDep'");
+            expect(exceptionMessage).toContain("'unknownDep'");
         });
 
         it("should throw exception for incomplete bindings", () => {
@@ -371,7 +371,7 @@ describe("Dependency Injector", () => {
             }
 
             //Assert
-            expect(exceptionMessage).to.equal('Unable to bind "dependency". Binding must contain one (and only one) of the following properties: "to", "toConstructor", "toMethod" or "toConstant".');
+            expect(exceptionMessage).toEqual('Unable to bind "dependency". Binding must contain one (and only one) of the following properties: "to", "toConstructor", "toMethod" or "toConstant".');
         });
 
         it("should throw exception for invalid binding when auto binding and manual binding at the same time", () => {
@@ -387,7 +387,7 @@ describe("Dependency Injector", () => {
             }
 
             //Assert
-            expect(exceptionMessage).to.equal('Unable to bind "dependency". Binding must contain one (and only one) of the following properties: "to", "toConstructor", "toMethod" or "toConstant".');
+            expect(exceptionMessage).toEqual('Unable to bind "dependency". Binding must contain one (and only one) of the following properties: "to", "toConstructor", "toMethod" or "toConstant".');
         });
 
         it("should throw exception for invalid binding when doing multiple manual binding types at the same time", () => {
@@ -403,7 +403,7 @@ describe("Dependency Injector", () => {
             }
 
             //Assert
-            expect(exceptionMessage).to.equal('Unable to bind "dependency". Binding must contain one (and only one) of the following properties: "to", "toConstructor", "toMethod" or "toConstant".');
+            expect(exceptionMessage).toEqual('Unable to bind "dependency". Binding must contain one (and only one) of the following properties: "to", "toConstructor", "toMethod" or "toConstant".');
         });
 
         it("should throw when circular dependency is detected", () => {
@@ -428,7 +428,7 @@ describe("Dependency Injector", () => {
             catch (error) { errorMessage = error.message; }
 
             //Assert
-            expect(errorMessage).to.equal("Circular dependency detected in: function (Implementation) <- **Implementation** <- dependency2 <- dependency1 <- **Implementation**.")
+            expect(errorMessage).toEqual("Circular dependency detected in: Implementation2 <- **Implementation** <- dependency2 <- dependency1 <- **Implementation**.")
         });
 
         it("should throw when circular dependency is detected while getting instance via contract name", () => {
@@ -454,7 +454,7 @@ describe("Dependency Injector", () => {
             catch (error) { errorMessage = error.message; }
 
             //Assert
-            expect(errorMessage).to.equal("Circular dependency detected in: TheImplementation <- **Implementation** <- dependency2 <- dependency1 <- **Implementation**.")
+            expect(errorMessage).toEqual("Circular dependency detected in: TheImplementation <- **Implementation** <- dependency2 <- dependency1 <- **Implementation**.")
         });
 
         it("should throw \"DependencyName\" has no binding when getting instance by contract name that is not bound", () => {
@@ -468,7 +468,7 @@ describe("Dependency Injector", () => {
             }
             catch (error) { errorMessage = error.message; }
 
-            expect(errorMessage).to.equal("\"DependencyName\" has no dependency binding.");
+            expect(errorMessage).toEqual("\"DependencyName\" has no dependency binding.");
         });
 
     });
