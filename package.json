@@ -14,7 +14,9 @@
   "scripts": {
     "test": "jest --coverage",
     "tdd": "jest --watch",
-    "build": "npm run test && webpack"
+    "build": "npm run test && webpack",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm run build"
   },
   "author": "Stewart Anderson",
   "license": "GPL-3.0",
@@ -27,5 +29,8 @@
     "jest": "^22.4.0",
     "regenerator-runtime": "^0.11.1",
     "webpack": "^3.11.0"
-  }
+  },
+  "files": [
+    "build"
+  ]
 }
